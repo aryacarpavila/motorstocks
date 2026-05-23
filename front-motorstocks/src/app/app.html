@@ -1,0 +1,83 @@
+<div style="font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f0f4f8; color: #1e293b; min-height: 100vh; padding-bottom: 60px;">
+  
+  <nav style="background-color: #0044ff; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0, 68, 255, 0.2); position: sticky; top: 0; z-index: 1000;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 1.8em; font-weight: 900; letter-spacing: 1px; color: #ffffff;">Motor<span style="color: #00a2ff;">Stocks</span></span>
+    </div>
+    <div style="display: flex; gap: 20px;">
+      <button (click)="cambiarSeccion('catalogo')" [style.background-color]="seccionActiva === 'catalogo' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Catálogo</button>
+      <button (click)="cambiarSeccion('registro')" [style.background-color]="seccionActiva === 'registro' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Registrarse</button>
+    </div>
+  </nav>
+
+  <div *ngIf="seccionActiva === 'catalogo'" style="max-width: 1100px; margin: 40px auto; padding: 0 20px;">
+    <div style="text-align: center; margin-bottom: 40px;">
+      <h2 style="font-size: 2.6em; margin-bottom: 10px; font-weight: 800; color: #0c1e5a;">Catálogo de Vehículos</h2>
+      <p style="color: #00a2ff; margin: 0; font-size: 1.2em; font-weight: 500;">Encuentra potencia, lujo y rendimiento en un solo lugar</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+      <div *ngFor="let carro of listaCarros" 
+           style="background-color: #ffffff; border-radius: 16px; overflow: hidden; display: flex; flex-wrap: wrap; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: transform 0.2s;">
+        
+        <div style="flex: 1 1 350px; min-height: 250px; position: relative;">
+          <img [src]="carro.imagen" [alt]="carro.modelo" style="width: 100%; height: 100%; object-fit: cover;">
+          <span style="position: absolute; top: 15px; left: 15px; background-color: #0044ff; color: #ffffff; padding: 6px 14px; font-size: 0.85em; font-weight: 700; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,64,255,0.3);">{{ carro.ano }}</span>
+        </div>
+
+        <div style="flex: 2 1 400px; padding: 35px; display: flex; flex-direction: column; justify-content: space-between; background-color: #ffffff;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <span style="color: #00a2ff; font-weight: 700; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px;">{{ carro.marca }}</span>
+                <h3 style="margin: 5px 0 15px 0; font-size: 2em; color: #0c1e5a; font-weight: 700;">{{ carro.modelo }}</h3>
+              </div>
+              <span style="font-size: 2em; font-weight: 800; color: #0044ff;">{{ carro.precio }}</span>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px;">
+              <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">⚙️ {{ carro.motor }}</span>
+              <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">🕹️ {{ carro.transmision }}</span>
+              <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">🛣️ {{ carro.kilometraje }}</span>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+            <button (click)="cotizar(carro.modelo)" style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;">Solicitar Cotización</button>
+            <button (click)="verDetalles(carro.modelo)" style="background-color: #0044ff; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,68,255,0.2);">Especificaciones</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="seccionActiva === 'registro'" style="max-width: 460px; margin: 60px auto; padding: 0 20px;">
+    <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+      <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #0c1e5a; font-weight: 800;">Crear Cuenta</h2>
+      <p style="text-align: center; color: #64748b; margin-bottom: 35px; font-size: 1em;">Únete a MotorStocks para recibir ofertas y gestionar tus cotizaciones de autos.</p>
+      
+      <form (submit)="registrarUsuario($event)" style="display: flex; flex-direction: column; gap: 22px;">
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Nombre Completo</label>
+          <input type="text" id="nombre" placeholder="Ej. Carlos Mendoza" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 1em; box-sizing: border-box; transition: 0.2s;">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Correo Electrónico</label>
+          <input type="email" id="correo" placeholder="carlos@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 1em; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Contraseña</label>
+          <input type="password" id="password" placeholder="••••••••" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 1em; box-sizing: border-box;">
+        </div>
+
+        <button type="submit" style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 14px rgba(0,64,255,0.3); transition: 0.2s;">
+          Registrarme Ahora
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
