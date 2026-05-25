@@ -4,9 +4,31 @@
     <div style="display: flex; align-items: center; gap: 10px;">
       <span style="font-size: 1.8em; font-weight: 900; letter-spacing: 1px; color: #ffffff;">Motor<span style="color: #00a2ff;">Stocks</span></span>
     </div>
-    <div style="display: flex; gap: 20px;">
+    <div style="display: flex; gap: 20px; align-items: center; position: relative;">
       <button (click)="cambiarSeccion('catalogo')" [style.background-color]="seccionActiva === 'catalogo' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Catálogo</button>
-      <button (click)="cambiarSeccion('registro')" [style.background-color]="seccionActiva === 'registro' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Registrarse</button>
+      
+      <ng-container *ngIf="!usuarioLogueado">
+        <button (click)="cambiarSeccion('login')" [style.background-color]="seccionActiva === 'login' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Iniciar Sesión</button>
+        <button (click)="cambiarSeccion('registro')" [style.background-color]="seccionActiva === 'registro' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Registrarse</button>
+      </ng-container>
+
+      <ng-container *ngIf="usuarioLogueado">
+        <div style="position: relative;">
+          <button (click)="toggleMenuPerfil()" style="background-color: rgba(255,255,255,0.2); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+            Hola, {{usuarioLogueado.nombre}} ▼
+          </button>
+          
+          <div *ngIf="menuPerfilAbierto" style="position: absolute; top: 120%; right: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; min-width: 200px; z-index: 1001; border: 1px solid #e2e8f0;">
+            <div style="padding: 15px; border-bottom: 1px solid #f1f5f9;">
+              <p style="margin: 0; font-weight: 700; color: #0c1e5a;">{{usuarioLogueado.nombre}} {{usuarioLogueado.apellido}}</p>
+              <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #64748b; word-break: break-all;">{{usuarioLogueado.correo}}</p>
+            </div>
+            <button style="width: 100%; text-align: left; padding: 12px 15px; border: none; background: transparent; cursor: pointer; color: #334155; font-size: 0.95em; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">👤 Ver perfil</button>
+            <button style="width: 100%; text-align: left; padding: 12px 15px; border: none; background: transparent; cursor: pointer; color: #334155; font-size: 0.95em; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">📅 Ver mis citas</button>
+            <button (click)="cerrarSesion()" style="width: 100%; text-align: left; padding: 12px 15px; border: none; background: #fef2f2; cursor: pointer; color: #dc2626; font-size: 0.95em; font-weight: 700; transition: background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">🚪 Cerrar sesión</button>
+          </div>
+        </div>
+      </ng-container>
     </div>
   </nav>
 
@@ -53,30 +75,94 @@
   </div>
 
   <div *ngIf="seccionActiva === 'registro'" style="max-width: 460px; margin: 60px auto; padding: 0 20px;">
-    <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-      <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #0c1e5a; font-weight: 800;">Crear Cuenta</h2>
-      <p style="text-align: center; color: #64748b; margin-bottom: 35px; font-size: 1em;">Únete a MotorStocks para recibir ofertas y gestionar tus cotizaciones de autos.</p>
-      
-      <form (submit)="registrarUsuario($event)" style="display: flex; flex-direction: column; gap: 22px;">
-        <div>
-          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Nombre Completo</label>
-          <input type="text" id="nombre" placeholder="Ej. Carlos Mendoza" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 1em; box-sizing: border-box; transition: 0.2s;">
+  <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+    <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #0c1e5a; font-weight: 800;">Crear Cuenta</h2>
+    <p style="text-align: center; color: #64748b; margin-bottom: 35px; font-size: 1em;">Únete a MotorStocks. Operaciones exclusivas en Caracas, Venezuela.</p>
+    
+    <form (submit)="registrarUsuario($event)" style="display: flex; flex-direction: column; gap: 22px;">
+      <div style="display: flex; gap: 15px;">
+        <div style="flex: 1;">
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Nombre</label>
+          <input type="text" id="nombre" name="nombre" [(ngModel)]="registroData.nombre" placeholder="Ej. Carlos" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
         </div>
+        <div style="flex: 1;">
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Apellido</label>
+          <input type="text" id="apellido" name="apellido" [(ngModel)]="registroData.apellido" placeholder="Ej. Mendoza" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+        </div>
+      </div>
 
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Correo Electrónico</label>
+        <input type="email" id="correo" name="correo" [(ngModel)]="registroData.correo" placeholder="carlos@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+        <div *ngIf="errorCorreo" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorCorreo }}</div>
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Fecha de Nacimiento</label>
+        <input type="date" id="fechaNacimiento" name="fechaNacimiento" [(ngModel)]="registroData.fechaNacimiento" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+        <div *ngIf="errorFechaNacimiento" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorFechaNacimiento }}</div>
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Contraseña</label>
+        <input type="password" id="password" name="password" [(ngModel)]="registroData.password" placeholder="Mínimo 8 caracteres, 1 número y 1 símbolo" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+        <div *ngIf="errorPassword" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorPassword }}</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <input type="checkbox" id="terminos" name="aceptaTerminos" [(ngModel)]="registroData.aceptaTerminos" required style="margin-top: 4px; transform: scale(1.2);">
+          <label for="terminos" style="font-size: 0.9em; color: #475569; line-height: 1.4;">
+            Acepto los Términos y Condiciones. Entiendo que las compras y ventas se procesarán únicamente en <strong>Caracas, Venezuela</strong>.
+          </label>
+        </div>
+        <div *ngIf="errorTerminos" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorTerminos }}</div>
+      </div>
+
+      <div *ngIf="mensajeError" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 0.95em; font-weight: 600; line-height: 1.4; text-align: center;">
+        ⚠️ {{ mensajeError }}
+      </div>
+
+      <div *ngIf="mensajeExito" style="background-color: #f0fdf4; border: 1px solid #dcfce7; color: #16a34a; padding: 12px 16px; border-radius: 8px; font-size: 0.95em; font-weight: 600; text-align: center;">
+        🎉 {{ mensajeExito }}
+      </div>
+
+      <button type="submit" style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,64,255,0.3);">
+        Registrarme Ahora
+      </button>
+    </form>
+  </div>
+  </div>
+
+
+  <div *ngIf="seccionActiva === 'login'" style="max-width: 460px; margin: 60px auto; padding: 0 20px;">
+    <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+      <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #0c1e5a; font-weight: 800;">Iniciar Sesión</h2>
+      <p style="text-align: center; color: #64748b; margin-bottom: 35px; font-size: 1em;">Accede a tu cuenta de MotorStocks.</p>
+      
+      <form (submit)="iniciarSesion($event)" style="display: flex; flex-direction: column; gap: 22px;">
         <div>
           <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Correo Electrónico</label>
-          <input type="email" id="correo" placeholder="carlos@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 1em; box-sizing: border-box;">
+          <input type="email" name="loginCorreo" [(ngModel)]="loginData.correo" placeholder="tucorreo@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
         </div>
 
         <div>
           <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Contraseña</label>
-          <input type="password" id="password" placeholder="••••••••" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; font-size: 1em; box-sizing: border-box;">
+          <input type="password" name="loginPassword" [(ngModel)]="loginData.password" placeholder="Tu contraseña" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
         </div>
 
-        <button type="submit" style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 14px rgba(0,64,255,0.3); transition: 0.2s;">
-          Registrarme Ahora
+        <div *ngIf="errorLogin" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 0.95em; font-weight: 600; line-height: 1.4; text-align: center;">
+          ⚠️ {{ errorLogin }}
+        </div>
+
+        <button type="submit" style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,64,255,0.3); transition: 0.2s;" onmouseover="this.style.backgroundColor='#0033cc'" onmouseout="this.style.backgroundColor='#0044ff'">
+          Entrar a MotorStocks
         </button>
       </form>
+      
+      <p style="text-align: center; margin-top: 25px; font-size: 0.95em; color: #64748b;">
+        ¿No tienes cuenta? <a href="javascript:void(0)" (click)="cambiarSeccion('registro')" style="color: #0044ff; font-weight: 600; text-decoration: none;">Regístrate aquí</a>
+      </p>
     </div>
   </div>
 

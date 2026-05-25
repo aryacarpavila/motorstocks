@@ -1,16 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class AppComponent {
+  constructor(private cdr: ChangeDetectorRef) {}
+
   // Control de navegación entre pantallas
-  seccionActiva: 'catalogo' | 'registro' = 'catalogo';
+  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' = 'catalogo';
   tituloCatalogo = 'Concesionario Premium MotorStocks';
   subtitulo = 'Tu próximo auto de altas prestaciones está aquí';
 
@@ -57,10 +60,38 @@ export class AppComponent {
       transmision: 'Automática'
     }
   ];
+  listaUsuarios: any[] = [];
 
-  // Cambiar entre la vista de catálogo y la de registro
-  cambiarSeccion(seccion: 'catalogo' | 'registro') {
+  // NUEVAS VARIABLES PARA MOSTRAR MENSAJES EN LA INTERFAZ
+  mensajeError: string | null = null;
+  mensajeExito: string | null = null;
+  errorCorreo: string | null = null;
+  errorFechaNacimiento: string | null = null;
+  errorPassword: string | null = null;
+  errorTerminos: string | null = null;
+
+  registroData = {
+    nombre: '',
+    apellido: '',
+    correo: '',
+    fechaNacimiento: '',
+    password: '',
+    aceptaTerminos: false
+  };
+
+  // Variables para el inicio de sesión
+  usuarioLogueado: any = null;
+  menuPerfilAbierto: boolean = false;
+  errorLogin: string | null = null;
+  loginData = {
+    correo: '',
+    password: ''
+  };
+
+  // Cambiar entre vistas
+  cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login') {
     this.seccionActiva = seccion;
+    this.menuPerfilAbierto = false; // Cierra el menú al navegar
   }
 
   verDetalles(modelo: string) {
@@ -72,50 +103,121 @@ export class AppComponent {
   }
 
   // Capturar los datos del Formulario de Registro
-  registrarUsuario(evento: Event) {
-    evento.preventDefault(); // Evita que la página se recargue por el formulario
-    
-    // Obtenemos los valores de los inputs usando JS nativo
-    const nombreInput = document.getElementById('nombre') as HTMLInputElement;
-    const correoInput = document.getElementById('correo') as HTMLInputElement;
-    const passwordInput = document.getElementById('password') as HTMLInputElement;
+  async registrarUsuario(evento: Event) {
+    evento.preventDefault();
+    this.mensajeError = null; // Limpiar errores anteriores
+    this.mensajeExito = null;
+    this.errorCorreo = null;
+    this.errorFechaNacimiento = null;
+    this.errorPassword = null;
+    this.errorTerminos = null;
 
-    const datosUsuario = {
-      nombre: nombreInput.value,
-      correo: correoInput.value,
-      password: passwordInput.value
-    };
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.registroData)
+      });
+      
+      const data = await respuesta.json();
 
-    fetch('http://localhost:3000/api/registro', {
-      method: 'POST', // Método que definimos en Node.js
-      headers: {
-        'Content-Type': 'application/json' // Le avisamos al servidor que va un JSON
-      },
-      body: JSON.stringify(datosUsuario) // Convertimos el objeto a texto plano para el envío
-    })
-    .then(respuesta => respuesta.json()) // Convertimos la respuesta del servidor a un objeto legible
-    .then(data => {
-      // Si el backend responde con éxito
       if (data.ok) {
-        alert(`¡Servidor Node.js responde!: ${data.mensaje}`);
+        // TODO SALIÓ PERFECTO -> SE CREA EL USUARIO
+        this.mensajeExito = data.mensaje;
         
-        // Limpiamos los campos del formulario para que queden vacíos
-        nombreInput.value = '';
-        correoInput.value = '';
-        passwordInput.value = '';
+        // Limpiar formulario
+        this.registroData = {
+          nombre: '',
+          apellido: '',
+          correo: '',
+          fechaNacimiento: '',
+          password: '',
+          aceptaTerminos: false
+        };
 
-        // Redirigimos al usuario al catálogo automáticamente
-        this.seccionActiva = 'catalogo';
+        this.cdr.detectChanges(); // Fuerza a Angular a pintar la pantalla inmediatamente
+
+        // Redirigir al catálogo después de 2 segundos para que lea el mensaje verde
+        setTimeout(() => {
+          this.seccionActiva = 'catalogo';
+          this.mensajeExito = null;
+          this.cdr.detectChanges(); // Fuerza actualización al cambiar de sección
+        }, 2500);
+
       } else {
-        alert(`Error en el servidor: ${data.mensaje}`);
+        // 🔴 ALGO SALIÓ MAL: El servidor no creó nada y pintamos los errores en rojo en la pantalla
+        if (data.errores && data.errores.length > 0) {
+          data.errores.forEach((err: any) => {
+            if (err.campo === 'correo') {
+              this.errorCorreo = `${err.mensaje} Por favor, ingrese los datos de nuevo.`;
+            } else if (err.campo === 'fechaNacimiento') {
+              this.errorFechaNacimiento = `${err.mensaje} Por favor, ingrese los datos de nuevo.`;
+            } else if (err.campo === 'password') {
+              this.errorPassword = `${err.mensaje} Por favor, ingrese los datos de nuevo.`;
+            } else if (err.campo === 'terminos') {
+              this.errorTerminos = `${err.mensaje} Por favor, ingrese los datos de nuevo.`;
+            } else if (err.campo === 'general') {
+              this.mensajeError = `${err.mensaje} Por favor, revisa todos los campos.`;
+            }
+          });
+        } else if (data.mensaje) {
+          this.mensajeError = `${data.mensaje} Por favor, ingrese los datos de nuevo.`;
+        } else {
+          this.mensajeError = 'Ocurrió un error desconocido durante el registro.';
+        }
+        this.cdr.detectChanges(); // Fuerza a Angular a mostrar los errores
       }
-    })
-    .catch(error => {
-      // Si el servidor está apagado o no se puede conectar
-      console.error('Error de conexión:', error);
-      alert('No se pudo conectar con el Backend. ¿Te aseguraste de encenderlo con "node server.js"?');
-    });
-    
+    } catch (error) {
+      this.mensajeError = 'Error crítico: No hay conexión con las políticas de seguridad de la plataforma.';
+      this.cdr.detectChanges(); // Fuerza a Angular a mostrar el error
+    }
+  }
+
+  // ==========================================
+  // LÓGICA DE INICIO Y CIERRE DE SESIÓN
+  // ==========================================
+  async iniciarSesion(evento: Event) {
+    evento.preventDefault();
+    this.errorLogin = null;
+
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(this.loginData)
+      });
+      
+      const data = await respuesta.json();
+
+      if (data.ok) {
+        // Guardamos el usuario en memoria
+        this.usuarioLogueado = data.usuario;
+        
+        // Limpiamos los campos
+        this.loginData = { correo: '', password: '' };
+        
+        // Volvemos al catálogo
+        this.seccionActiva = 'catalogo';
+        this.cdr.detectChanges();
+      } else {
+        this.errorLogin = data.mensaje;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      this.errorLogin = 'Error de conexión con el servidor.';
+      this.cdr.detectChanges();
+    }
+  }
+
+  toggleMenuPerfil() {
+    this.menuPerfilAbierto = !this.menuPerfilAbierto;
+    this.cdr.detectChanges();
+  }
+
+  cerrarSesion() {
+    this.usuarioLogueado = null;
+    this.menuPerfilAbierto = false;
     this.seccionActiva = 'catalogo';
+    this.cdr.detectChanges();
   }
 }
