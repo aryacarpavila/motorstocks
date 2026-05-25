@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,11 +9,21 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   constructor(private cdr: ChangeDetectorRef) {}
 
+  ngOnInit() {
+    const savedUser = localStorage.getItem('usuarioLogueado');
+    if (savedUser) {
+      this.usuarioLogueado = JSON.parse(savedUser);
+      if (this.usuarioLogueado.rol === 'admin') {
+        this.cambiarSeccion('admin');
+      }
+    }
+  }
+
   // Control de navegación entre pantallas
-  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' = 'catalogo';
+  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' = 'catalogo';
   tituloCatalogo = 'Concesionario Premium MotorStocks';
   subtitulo = 'Tu próximo auto de altas prestaciones está aquí';
 
@@ -61,6 +71,22 @@ export class AppComponent {
     }
   ];
   listaUsuarios: any[] = [];
+  listaCitas: any[] = [
+    { cliente: 'Juan Pérez', auto: 'Tesla Model S', fecha: '2026-06-01', hora: '10:00 AM', estado: 'Pendiente' },
+    { cliente: 'María Gómez', auto: 'Porsche 911', fecha: '2026-06-05', hora: '02:30 PM', estado: 'Confirmada' }
+  ];
+
+  nuevoAuto = {
+    marca: '',
+    modelo: '',
+    precio: '',
+    ano: '',
+    kilometraje: '',
+    imagen: '',
+    motor: '',
+    transmision: ''
+  };
+
 
   // NUEVAS VARIABLES PARA MOSTRAR MENSAJES EN LA INTERFAZ
   mensajeError: string | null = null;
@@ -89,9 +115,12 @@ export class AppComponent {
   };
 
   // Cambiar entre vistas
-  cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login') {
+  cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin') {
     this.seccionActiva = seccion;
     this.menuPerfilAbierto = false; // Cierra el menú al navegar
+    if (seccion === 'admin') {
+      this.cargarUsuarios();
+    }
   }
 
   verDetalles(modelo: string) {
@@ -190,14 +219,19 @@ export class AppComponent {
       const data = await respuesta.json();
 
       if (data.ok) {
-        // Guardamos el usuario en memoria
+        // Guardamos el usuario en memoria y localStorage
         this.usuarioLogueado = data.usuario;
+        localStorage.setItem('usuarioLogueado', JSON.stringify(data.usuario));
         
         // Limpiamos los campos
         this.loginData = { correo: '', password: '' };
         
-        // Volvemos al catálogo
-        this.seccionActiva = 'catalogo';
+        // Redirigimos según el rol
+        if (this.usuarioLogueado.rol === 'admin') {
+          this.cambiarSeccion('admin');
+        } else {
+          this.seccionActiva = 'catalogo';
+        }
         this.cdr.detectChanges();
       } else {
         this.errorLogin = data.mensaje;
@@ -216,8 +250,51 @@ export class AppComponent {
 
   cerrarSesion() {
     this.usuarioLogueado = null;
+    localStorage.removeItem('usuarioLogueado');
     this.menuPerfilAbierto = false;
     this.seccionActiva = 'catalogo';
     this.cdr.detectChanges();
+  }
+
+  // ==========================================
+  // FUNCIONES DE ADMINISTRADOR
+  // ==========================================
+  async cargarUsuarios() {
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/usuarios');
+      const data = await respuesta.json();
+      if (data.ok) {
+        this.listaUsuarios = data.usuarios;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Error cargando usuarios', error);
+    }
+  }
+
+  agregarAuto(evento: Event) {
+    evento.preventDefault();
+    // Añadimos el auto al principio de la lista
+    this.listaCarros.unshift({ ...this.nuevoAuto });
+    
+    // Limpiamos el formulario
+    this.nuevoAuto = {
+      marca: '', modelo: '', precio: '', ano: '', kilometraje: '', imagen: '', motor: '', transmision: ''
+    };
+    alert('¡Auto agregado exitosamente al catálogo!');
+    this.cdr.detectChanges();
+  }
+
+  mostrarProximamente() {
+    alert('Próximamente se hará, confía');
+  }
+
+  cambiarEstadoCita(cita: any, estado: string) {
+    cita.estado = estado;
+    this.cdr.detectChanges();
+  }
+
+  verDetallesCita(cita: any) {
+    alert(`Cargando información completa de la cita con ${cita.cliente}...`);
   }
 }

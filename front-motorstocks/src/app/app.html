@@ -1,168 +1,298 @@
-<div style="font-family: 'Segoe UI', Roboto, sans-serif; background-color: #f0f4f8; color: #1e293b; min-height: 100vh; padding-bottom: 60px;">
+<div style="font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; color: #111111; min-height: 100vh; padding-bottom: 60px;">
   
-  <nav style="background-color: #0044ff; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0, 68, 255, 0.2); position: sticky; top: 0; z-index: 1000;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <span style="font-size: 1.8em; font-weight: 900; letter-spacing: 1px; color: #ffffff;">Motor<span style="color: #00a2ff;">Stocks</span></span>
+  <!-- BARRA DE NAVEGACIÓN -->
+  <nav style="background-color: #111111; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+    <div style="display: flex; align-items: center; gap: 25px;">
+      <span style="font-size: 1.8em; font-weight: 900; letter-spacing: -1px; color: #ffffff; text-transform: uppercase;">
+        Motor<span style="color: #0044ff;">Stocks</span>
+      </span>
+      
+      <!-- Enlaces Rápidos (Botones Próximamente) -->
+      <div style="display: none; @media(min-width: 768px){display: flex;} gap: 20px; margin-left: 20px; border-left: 1px solid #333; padding-left: 20px;">
+        <button (click)="mostrarProximamente()" style="background: transparent; color: #ffffff; border: none; font-weight: 600; font-size: 0.9em; cursor: pointer; text-transform: uppercase;">Vehículos</button>
+        <button (click)="mostrarProximamente()" style="background: transparent; color: #ffffff; border: none; font-weight: 600; font-size: 0.9em; cursor: pointer; text-transform: uppercase;">Ofertas</button>
+        <button (click)="mostrarProximamente()" style="background: transparent; color: #ffffff; border: none; font-weight: 600; font-size: 0.9em; cursor: pointer; text-transform: uppercase;">Financiamiento</button>
+      </div>
     </div>
-    <div style="display: flex; gap: 20px; align-items: center; position: relative;">
-      <button (click)="cambiarSeccion('catalogo')" [style.background-color]="seccionActiva === 'catalogo' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Catálogo</button>
+
+    <div style="display: flex; gap: 15px; align-items: center; position: relative;">
+      <button (click)="cambiarSeccion('catalogo')" [style.color]="seccionActiva === 'catalogo' ? '#0044ff' : '#ffffff'" style="background: transparent; border: none; padding: 8px 12px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase;">Catálogo</button>
+      
+      <button *ngIf="usuarioLogueado?.rol === 'admin'" (click)="cambiarSeccion('admin')" [style.color]="seccionActiva === 'admin' ? '#0044ff' : '#ffffff'" style="background: transparent; border: none; padding: 8px 12px; font-size: 0.95em; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase;">Panel Admin</button>
       
       <ng-container *ngIf="!usuarioLogueado">
-        <button (click)="cambiarSeccion('login')" [style.background-color]="seccionActiva === 'login' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Iniciar Sesión</button>
-        <button (click)="cambiarSeccion('registro')" [style.background-color]="seccionActiva === 'registro' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Registrarse</button>
+        <button (click)="cambiarSeccion('login')" style="color: #ffffff; background-color: transparent; border: 1px solid #ffffff; padding: 8px 20px; font-size: 0.9em; font-weight: 600; cursor: pointer; border-radius: 4px; transition: 0.2s; text-transform: uppercase;" onmouseover="this.style.backgroundColor='#ffffff'; this.style.color='#111111'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#ffffff'">Ingresar</button>
+        <button (click)="cambiarSeccion('registro')" style="color: #ffffff; background-color: #0044ff; border: none; padding: 9px 20px; font-size: 0.9em; font-weight: 600; cursor: pointer; border-radius: 4px; transition: 0.2s; text-transform: uppercase;" onmouseover="this.style.backgroundColor='#0033cc'" onmouseout="this.style.backgroundColor='#0044ff'">Registro</button>
       </ng-container>
 
       <ng-container *ngIf="usuarioLogueado">
         <div style="position: relative;">
-          <button (click)="toggleMenuPerfil()" style="background-color: rgba(255,255,255,0.2); color: #ffffff; border: 1px solid rgba(255,255,255,0.4); padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+          <button (click)="toggleMenuPerfil()" style="background-color: transparent; color: #ffffff; border: none; padding: 8px; font-size: 0.95em; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
             Hola, {{usuarioLogueado.nombre}} ▼
           </button>
           
-          <div *ngIf="menuPerfilAbierto" style="position: absolute; top: 120%; right: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; min-width: 200px; z-index: 1001; border: 1px solid #e2e8f0;">
-            <div style="padding: 15px; border-bottom: 1px solid #f1f5f9;">
-              <p style="margin: 0; font-weight: 700; color: #0c1e5a;">{{usuarioLogueado.nombre}} {{usuarioLogueado.apellido}}</p>
-              <p style="margin: 5px 0 0 0; font-size: 0.85em; color: #64748b; word-break: break-all;">{{usuarioLogueado.correo}}</p>
+          <div *ngIf="menuPerfilAbierto" style="position: absolute; top: 130%; right: 0; background-color: #ffffff; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; min-width: 220px; z-index: 1001; border: 1px solid #ddd;">
+            <div style="padding: 20px; border-bottom: 1px solid #eee; background-color: #f9f9f9;">
+              <p style="margin: 0; font-weight: 800; color: #111111; text-transform: uppercase; font-size: 0.9em;">{{usuarioLogueado.nombre}} {{usuarioLogueado.apellido}}</p>
+              <p style="margin: 5px 0 0 0; font-size: 0.8em; color: #555;">{{usuarioLogueado.correo}}</p>
             </div>
-            <button style="width: 100%; text-align: left; padding: 12px 15px; border: none; background: transparent; cursor: pointer; color: #334155; font-size: 0.95em; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">👤 Ver perfil</button>
-            <button style="width: 100%; text-align: left; padding: 12px 15px; border: none; background: transparent; cursor: pointer; color: #334155; font-size: 0.95em; font-weight: 600; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">📅 Ver mis citas</button>
-            <button (click)="cerrarSesion()" style="width: 100%; text-align: left; padding: 12px 15px; border: none; background: #fef2f2; cursor: pointer; color: #dc2626; font-size: 0.95em; font-weight: 700; transition: background 0.2s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fef2f2'">🚪 Cerrar sesión</button>
+            <button (click)="mostrarProximamente()" style="width: 100%; text-align: left; padding: 12px 20px; border: none; background: transparent; cursor: pointer; color: #333; font-size: 0.9em; font-weight: 600; border-bottom: 1px solid #eee; transition: background 0.2s;" onmouseover="this.style.background='#f4f4f4'" onmouseout="this.style.background='transparent'">👤 Mi Perfil</button>
+            <button (click)="cerrarSesion()" style="width: 100%; text-align: left; padding: 12px 20px; border: none; background: transparent; cursor: pointer; color: #0044ff; font-size: 0.9em; font-weight: 700; transition: background 0.2s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='transparent'">🚪 Cerrar sesión</button>
           </div>
         </div>
       </ng-container>
     </div>
   </nav>
 
-  <div *ngIf="seccionActiva === 'catalogo'" style="max-width: 1100px; margin: 40px auto; padding: 0 20px;">
-    <div style="text-align: center; margin-bottom: 40px;">
-      <h2 style="font-size: 2.6em; margin-bottom: 10px; font-weight: 800; color: #0c1e5a;">Catálogo de Vehículos</h2>
-      <p style="color: #00a2ff; margin: 0; font-size: 1.2em; font-weight: 500;">Encuentra potencia, lujo y rendimiento en un solo lugar</p>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 30px;">
-      <div *ngFor="let carro of listaCarros" 
-           style="background-color: #ffffff; border-radius: 16px; overflow: hidden; display: flex; flex-wrap: wrap; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: transform 0.2s;">
-        
-        <div style="flex: 1 1 350px; min-height: 250px; position: relative;">
-          <img [src]="carro.imagen" [alt]="carro.modelo" style="width: 100%; height: 100%; object-fit: cover;">
-          <span style="position: absolute; top: 15px; left: 15px; background-color: #0044ff; color: #ffffff; padding: 6px 14px; font-size: 0.85em; font-weight: 700; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,64,255,0.3);">{{ carro.ano }}</span>
-        </div>
-
-        <div style="flex: 2 1 400px; padding: 35px; display: flex; flex-direction: column; justify-content: space-between; background-color: #ffffff;">
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <span style="color: #00a2ff; font-weight: 700; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px;">{{ carro.marca }}</span>
-                <h3 style="margin: 5px 0 15px 0; font-size: 2em; color: #0c1e5a; font-weight: 700;">{{ carro.modelo }}</h3>
-              </div>
-              <span style="font-size: 2em; font-weight: 800; color: #0044ff;">{{ carro.precio }}</span>
-            </div>
-
-            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px;">
-              <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">⚙️ {{ carro.motor }}</span>
-              <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">🕹️ {{ carro.transmision }}</span>
-              <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">🛣️ {{ carro.kilometraje }}</span>
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
-            <button (click)="cotizar(carro.modelo)" style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;">Solicitar Cotización</button>
-            <button (click)="verDetalles(carro.modelo)" style="background-color: #0044ff; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,68,255,0.2);">Especificaciones</button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="seccionActiva === 'registro'" style="max-width: 460px; margin: 60px auto; padding: 0 20px;">
-  <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-    <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #0c1e5a; font-weight: 800;">Crear Cuenta</h2>
-    <p style="text-align: center; color: #64748b; margin-bottom: 35px; font-size: 1em;">Únete a MotorStocks. Operaciones exclusivas en Caracas, Venezuela.</p>
+  <!-- CATÁLOGO -->
+  <div *ngIf="seccionActiva === 'catalogo'">
     
-    <form (submit)="registrarUsuario($event)" style="display: flex; flex-direction: column; gap: 22px;">
-      <div style="display: flex; gap: 15px;">
-        <div style="flex: 1;">
-          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Nombre</label>
-          <input type="text" id="nombre" name="nombre" [(ngModel)]="registroData.nombre" placeholder="Ej. Carlos" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+    <!-- Hero Banner -->
+    <div style="position: relative; width: 100%; height: 60vh; background-image: url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=2000'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7));"></div>
+      <div style="position: relative; z-index: 1; text-align: center; color: #ffffff; padding: 0 20px;">
+        <h1 style="font-size: 3.5em; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);">Descubre el Poder</h1>
+        <p style="font-size: 1.2em; font-weight: 400; max-width: 600px; margin: 0 auto 30px auto; text-shadow: 1px 1px 5px rgba(0,0,0,0.5);">Diseño superior. Rendimiento inigualable. El vehículo de tus sueños te espera.</p>
+        <button (click)="mostrarProximamente()" style="background-color: #0044ff; color: #ffffff; border: none; padding: 15px 40px; font-size: 1.1em; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#0033cc'" onmouseout="this.style.backgroundColor='#0044ff'">Explorar Ofertas</button>
+      </div>
+    </div>
+
+    <!-- Antiguo Lista de Vehículos (Flex horizontal en lugar del grid vertical) -->
+    <div style="max-width: 1100px; margin: 60px auto; padding: 0 20px;">
+      <div style="text-align: center; margin-bottom: 40px;">
+        <h2 style="font-size: 2.6em; margin-bottom: 10px; font-weight: 800; color: #0c1e5a;">Catálogo de Vehículos</h2>
+        <p style="color: #00a2ff; margin: 0; font-size: 1.2em; font-weight: 500;">Encuentra potencia, lujo y rendimiento en un solo lugar</p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 30px;">
+        <div *ngFor="let carro of listaCarros" 
+             style="background-color: #ffffff; border-radius: 16px; overflow: hidden; display: flex; flex-wrap: wrap; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: transform 0.2s;">
+          
+          <div style="flex: 1 1 350px; min-height: 250px; position: relative;">
+            <img [src]="carro.imagen" [alt]="carro.modelo" style="width: 100%; height: 100%; object-fit: cover;">
+            <span style="position: absolute; top: 15px; left: 15px; background-color: #0044ff; color: #ffffff; padding: 6px 14px; font-size: 0.85em; font-weight: 700; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,64,255,0.3);">{{ carro.ano }}</span>
+          </div>
+
+          <div style="flex: 2 1 400px; padding: 35px; display: flex; flex-direction: column; justify-content: space-between; background-color: #ffffff;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  <span style="color: #00a2ff; font-weight: 700; text-transform: uppercase; font-size: 0.9em; letter-spacing: 1px;">{{ carro.marca }}</span>
+                  <h3 style="margin: 5px 0 15px 0; font-size: 2em; color: #0c1e5a; font-weight: 700;">{{ carro.modelo }}</h3>
+                </div>
+                <span style="font-size: 2em; font-weight: 800; color: #0044ff;">{{ carro.precio }}</span>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px;">
+                <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">⚙️ {{ carro.motor }}</span>
+                <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">🕹️ {{ carro.transmision }}</span>
+                <span style="background-color: #f1f5f9; color: #334155; padding: 8px 14px; border-radius: 8px; font-size: 0.9em; font-weight: 500; border: 1px solid #e2e8f0;">🛣️ {{ carro.kilometraje }}</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+              <button (click)="cotizar(carro.modelo)" style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;">Solicitar Cotización</button>
+              <button (click)="verDetalles(carro.modelo)" style="background-color: #0044ff; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,68,255,0.2);">Especificaciones</button>
+            </div>
+          </div>
+
         </div>
-        <div style="flex: 1;">
-          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Apellido</label>
-          <input type="text" id="apellido" name="apellido" [(ngModel)]="registroData.apellido" placeholder="Ej. Mendoza" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
-        </div>
       </div>
-
-      <div>
-        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Correo Electrónico</label>
-        <input type="email" id="correo" name="correo" [(ngModel)]="registroData.correo" placeholder="carlos@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
-        <div *ngIf="errorCorreo" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorCorreo }}</div>
-      </div>
-
-      <div>
-        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Fecha de Nacimiento</label>
-        <input type="date" id="fechaNacimiento" name="fechaNacimiento" [(ngModel)]="registroData.fechaNacimiento" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
-        <div *ngIf="errorFechaNacimiento" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorFechaNacimiento }}</div>
-      </div>
-
-      <div>
-        <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Contraseña</label>
-        <input type="password" id="password" name="password" [(ngModel)]="registroData.password" placeholder="Mínimo 8 caracteres, 1 número y 1 símbolo" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
-        <div *ngIf="errorPassword" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorPassword }}</div>
-      </div>
-
-      <div style="display: flex; flex-direction: column;">
-        <div style="display: flex; align-items: flex-start; gap: 10px;">
-          <input type="checkbox" id="terminos" name="aceptaTerminos" [(ngModel)]="registroData.aceptaTerminos" required style="margin-top: 4px; transform: scale(1.2);">
-          <label for="terminos" style="font-size: 0.9em; color: #475569; line-height: 1.4;">
-            Acepto los Términos y Condiciones. Entiendo que las compras y ventas se procesarán únicamente en <strong>Caracas, Venezuela</strong>.
-          </label>
-        </div>
-        <div *ngIf="errorTerminos" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorTerminos }}</div>
-      </div>
-
-      <div *ngIf="mensajeError" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 0.95em; font-weight: 600; line-height: 1.4; text-align: center;">
-        ⚠️ {{ mensajeError }}
-      </div>
-
-      <div *ngIf="mensajeExito" style="background-color: #f0fdf4; border: 1px solid #dcfce7; color: #16a34a; padding: 12px 16px; border-radius: 8px; font-size: 0.95em; font-weight: 600; text-align: center;">
-        🎉 {{ mensajeExito }}
-      </div>
-
-      <button type="submit" style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,64,255,0.3);">
-        Registrarme Ahora
-      </button>
-    </form>
+    </div>
   </div>
-  </div>
 
-
-  <div *ngIf="seccionActiva === 'login'" style="max-width: 460px; margin: 60px auto; padding: 0 20px;">
-    <div style="background-color: #ffffff; border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
-      <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #0c1e5a; font-weight: 800;">Iniciar Sesión</h2>
-      <p style="text-align: center; color: #64748b; margin-bottom: 35px; font-size: 1em;">Accede a tu cuenta de MotorStocks.</p>
+  <!-- REGISTRO -->
+  <div *ngIf="seccionActiva === 'registro'" style="max-width: 460px; margin: 60px auto; padding: 0 20px;">
+    <div style="background-color: #ffffff; padding: 40px; border: 1px solid #ddd; box-shadow: 0 10px 40px rgba(0,0,0,0.05);">
+      <h2 style="margin-top: 0; text-align: center; font-size: 2.2em; color: #111111; font-weight: 800;">Crear Cuenta</h2>
+      <p style="text-align: center; color: #555; margin-bottom: 35px; font-size: 1em;">Únete a MotorStocks. Operaciones exclusivas en Caracas, Venezuela.</p>
       
-      <form (submit)="iniciarSesion($event)" style="display: flex; flex-direction: column; gap: 22px;">
-        <div>
-          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Correo Electrónico</label>
-          <input type="email" name="loginCorreo" [(ngModel)]="loginData.correo" placeholder="tucorreo@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+      <form (submit)="registrarUsuario($event)" style="display: flex; flex-direction: column; gap: 22px;">
+        <div style="display: flex; gap: 15px;">
+          <div style="flex: 1;">
+            <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #111111;">Nombre</label>
+            <input type="text" id="nombre" name="nombre" [(ngModel)]="registroData.nombre" placeholder="Ej. Carlos" required style="width: 100%; padding: 12px 16px; background-color: #f9f9f9; border: 1px solid #ccc; box-sizing: border-box;">
+          </div>
+          <div style="flex: 1;">
+            <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #111111;">Apellido</label>
+            <input type="text" id="apellido" name="apellido" [(ngModel)]="registroData.apellido" placeholder="Ej. Mendoza" required style="width: 100%; padding: 12px 16px; background-color: #f9f9f9; border: 1px solid #ccc; box-sizing: border-box;">
+          </div>
         </div>
 
         <div>
-          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #334155;">Contraseña</label>
-          <input type="password" name="loginPassword" [(ngModel)]="loginData.password" placeholder="Tu contraseña" required style="width: 100%; padding: 12px 16px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; color: #0f172a; box-sizing: border-box;">
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #111111;">Correo Electrónico</label>
+          <input type="email" id="correo" name="correo" [(ngModel)]="registroData.correo" placeholder="carlos@motorstocks.com" required style="width: 100%; padding: 12px 16px; background-color: #f9f9f9; border: 1px solid #ccc; box-sizing: border-box;">
+          <div *ngIf="errorCorreo" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorCorreo }}</div>
         </div>
 
-        <div *ngIf="errorLogin" style="background-color: #fef2f2; border: 1px solid #fee2e2; color: #dc2626; padding: 12px 16px; border-radius: 8px; font-size: 0.95em; font-weight: 600; line-height: 1.4; text-align: center;">
-          ⚠️ {{ errorLogin }}
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #111111;">Fecha de Nacimiento</label>
+          <input type="date" id="fechaNacimiento" name="fechaNacimiento" [(ngModel)]="registroData.fechaNacimiento" required style="width: 100%; padding: 12px 16px; background-color: #f9f9f9; border: 1px solid #ccc; box-sizing: border-box;">
+          <div *ngIf="errorFechaNacimiento" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorFechaNacimiento }}</div>
         </div>
 
-        <button type="submit" style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,64,255,0.3); transition: 0.2s;" onmouseover="this.style.backgroundColor='#0033cc'" onmouseout="this.style.backgroundColor='#0044ff'">
-          Entrar a MotorStocks
-        </button>
+        <div>
+          <label style="display: block; margin-bottom: 8px; font-size: 0.95em; font-weight: 600; color: #111111;">Contraseña</label>
+          <input type="password" id="password" name="password" [(ngModel)]="registroData.password" placeholder="Mínimo 8 caracteres, 1 número y 1 símbolo" required style="width: 100%; padding: 12px 16px; background-color: #f9f9f9; border: 1px solid #ccc; box-sizing: border-box;">
+          <div *ngIf="errorPassword" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorPassword }}</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <input type="checkbox" id="terminos" name="aceptaTerminos" [(ngModel)]="registroData.aceptaTerminos" required style="margin-top: 4px; transform: scale(1.2);">
+            <label for="terminos" style="font-size: 0.9em; color: #555; line-height: 1.4;">
+              Acepto los Términos y Condiciones. Entiendo que las compras y ventas se procesarán únicamente en <strong>Caracas, Venezuela</strong>.
+            </label>
+          </div>
+          <div *ngIf="errorTerminos" style="color: #dc2626; font-size: 0.85em; margin-top: 5px; font-weight: 600;">⚠️ {{ errorTerminos }}</div>
+        </div>
+
+        <div *ngIf="mensajeError" style="background-color: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626; padding: 12px 16px; font-size: 0.95em; font-weight: 600; line-height: 1.4; text-align: left;">
+          ⚠️ {{ mensajeError }}
+        </div>
+
+        <div *ngIf="mensajeExito" style="background-color: #f0fdf4; border-left: 4px solid #16a34a; color: #16a34a; padding: 12px 16px; font-size: 0.95em; font-weight: 600; text-align: left;">
+          🎉 {{ mensajeExito }}
+        </div>
+
+        <button type="submit" style="width: 100%; background-color: #111111; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='#111111'">Crear Cuenta</button>
       </form>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div *ngIf="seccionActiva === 'login'" style="max-width: 450px; margin: 100px auto; padding: 0 20px;">
+    <div style="background-color: #ffffff; padding: 40px; border: 1px solid #ddd; box-shadow: 0 10px 40px rgba(0,0,0,0.05);">
+      <h2 style="margin-top: 0; text-align: center; font-size: 2em; color: #111111; font-weight: 900; text-transform: uppercase;">Iniciar Sesión</h2>
       
-      <p style="text-align: center; margin-top: 25px; font-size: 0.95em; color: #64748b;">
-        ¿No tienes cuenta? <a href="javascript:void(0)" (click)="cambiarSeccion('registro')" style="color: #0044ff; font-weight: 600; text-decoration: none;">Regístrate aquí</a>
-      </p>
+      <form (submit)="iniciarSesion($event)" style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Correo Electrónico</label>
+          <input type="email" [(ngModel)]="loginData.correo" name="loginCorreo" required style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Contraseña</label>
+          <input type="password" [(ngModel)]="loginData.password" name="loginPassword" required style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+        </div>
+
+        <div *ngIf="errorLogin" style="background-color: #eff6ff; border-left: 4px solid #0044ff; color: #0044ff; padding: 15px; font-size: 0.9em; font-weight: 600;">
+          {{ errorLogin }}
+        </div>
+
+        <button type="submit" style="width: 100%; background-color: #0044ff; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#0033cc'" onmouseout="this.style.backgroundColor='#0044ff'">Ingresar</button>
+      </form>
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="javascript:void(0)" (click)="cambiarSeccion('registro')" style="color: #111111; font-size: 0.9em; font-weight: 600;">¿No tienes cuenta? Regístrate</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN PANEL DE ADMINISTRADOR -->
+  <div *ngIf="seccionActiva === 'admin'" style="max-width: 1300px; margin: 40px auto; padding: 0 20px;">
+    
+    <div style="margin-bottom: 30px;">
+      <h2 style="font-size: 2.5em; font-weight: 900; color: #111111; text-transform: uppercase; margin: 0;">Panel de Control</h2>
+      <p style="color: #0044ff; font-weight: 700; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Acceso Restringido</p>
+    </div>
+
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      
+      <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 20px;">
+        <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #111111;">
+          <span style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Total Usuarios</span>
+          <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaUsuarios.length }}</span>
+        </div>
+        <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #0044ff;">
+          <span style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Autos Disponibles</span>
+          <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaCarros.length }}</span>
+        </div>
+        <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #111111;">
+          <span style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Citas Pendientes</span>
+          <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaCitas.length }}</span>
+        </div>
+      </div>
+
+      <div style="flex: 2 1 600px; display: flex; flex-direction: column; gap: 30px;">
+        
+        <!-- Gestión de Citas -->
+        <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd;">
+          <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">Gestión de Citas</h3>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div *ngFor="let cita of listaCitas" style="padding: 20px; border: 1px solid #eee; background-color: #f9f9f9; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+              <div>
+                <h4 style="margin: 0; color: #111111; font-size: 1.2em; font-weight: 800;">{{ cita.cliente }}</h4>
+                <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9em;">Vehículo: <strong style="color: #0044ff;">{{ cita.auto }}</strong></p>
+                <p style="margin: 5px 0 0 0; color: #777; font-size: 0.85em;">{{ cita.fecha }} a las {{ cita.hora }}</p>
+              </div>
+              <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                <span [ngStyle]="{'background-color': cita.estado === 'Pendiente' ? '#f59e0b' : (cita.estado === 'Confirmada' ? '#16a34a' : '#0044ff')}" style="color: #ffffff; padding: 4px 12px; font-size: 0.8em; font-weight: 800; text-transform: uppercase;">{{ cita.estado }}</span>
+                <div style="display: flex; gap: 5px;">
+                  <button (click)="verDetallesCita(cita)" style="background: #111111; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">Ver</button>
+                  <button *ngIf="cita.estado === 'Pendiente'" (click)="cambiarEstadoCita(cita, 'Confirmada')" style="background: #16a34a; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✔ Confirmar</button>
+                  <button *ngIf="cita.estado === 'Pendiente'" (click)="cambiarEstadoCita(cita, 'Cancelada')" style="background: #0044ff; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✖ Declinar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Usuarios -->
+        <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd;">
+          <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">Usuarios en Sistema</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+              <thead>
+                <tr style="background-color: #111111; color: #ffffff; text-align: left; text-transform: uppercase;">
+                  <th style="padding: 12px;">ID</th>
+                  <th style="padding: 12px;">Nombre</th>
+                  <th style="padding: 12px;">Correo</th>
+                  <th style="padding: 12px;">Rol</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of listaUsuarios" style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 12px; font-weight: 600;">{{ user.id }}</td>
+                  <td style="padding: 12px; font-weight: 700;">{{ user.nombre }} {{ user.apellido }}</td>
+                  <td style="padding: 12px; color: #555;">{{ user.correo }}</td>
+                  <td style="padding: 12px;"><span [style.color]="user.rol === 'admin' ? '#0044ff' : '#111111'" style="font-weight: 800; text-transform: uppercase;">{{ user.rol }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Formulario Agregar Auto -->
+        <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd;">
+          <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">Ingresar Vehículo</h3>
+          <form (submit)="agregarAuto($event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Marca</label>
+              <input type="text" [(ngModel)]="nuevoAuto.marca" name="marca" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Modelo</label>
+              <input type="text" [(ngModel)]="nuevoAuto.modelo" name="modelo" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Precio</label>
+              <input type="text" [(ngModel)]="nuevoAuto.precio" name="precio" placeholder="$" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Año</label>
+              <input type="text" [(ngModel)]="nuevoAuto.ano" name="ano" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Imagen (URL)</label>
+              <input type="text" [(ngModel)]="nuevoAuto.imagen" name="imagen" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+            </div>
+            <div style="grid-column: span 2;">
+              <button type="submit" style="width: 100%; background-color: #0044ff; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#0033cc'" onmouseout="this.style.backgroundColor='#0044ff'">Publicar en Catálogo</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
     </div>
   </div>
 
