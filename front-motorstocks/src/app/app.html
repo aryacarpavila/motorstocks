@@ -6,6 +6,7 @@
     </div>
     <div style="display: flex; gap: 20px; align-items: center; position: relative;">
       <button (click)="cambiarSeccion('catalogo')" [style.background-color]="seccionActiva === 'catalogo' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Catálogo</button>
+      <button *ngIf="usuarioLogueado?.rol === 'admin'" (click)="cambiarSeccion('admin')" [style.background-color]="seccionActiva === 'admin' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s; margin-left: 5px;">Panel Admin</button>
       
       <ng-container *ngIf="!usuarioLogueado">
         <button (click)="cambiarSeccion('login')" [style.background-color]="seccionActiva === 'login' ? 'rgba(255,255,255,0.2)' : 'transparent'" style="color: #ffffff; border: none; padding: 8px 16px; font-size: 0.95em; font-weight: 600; cursor: pointer; border-radius: 6px; transition: 0.2s;">Iniciar Sesión</button>
@@ -163,6 +164,123 @@
       <p style="text-align: center; margin-top: 25px; font-size: 0.95em; color: #64748b;">
         ¿No tienes cuenta? <a href="javascript:void(0)" (click)="cambiarSeccion('registro')" style="color: #0044ff; font-weight: 600; text-decoration: none;">Regístrate aquí</a>
       </p>
+    </div>
+  </div>
+
+  <!-- SECCIÓN PANEL DE ADMINISTRADOR -->
+  <div *ngIf="seccionActiva === 'admin'" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+      
+      <!-- Tarjeta de Bienvenida y Estadísticas Rápidas -->
+      <div style="flex: 1 1 300px; background-color: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; align-self: flex-start;">
+        <h3 style="margin-top: 0; color: #0c1e5a; font-size: 1.5em; font-weight: 800;">Hola, Administrador</h3>
+        <p style="color: #64748b; font-size: 0.95em;">Resumen del sistema</p>
+        <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.85em; color: #64748b; font-weight: 600;">Usuarios Totales</span>
+            <span style="font-size: 1.8em; font-weight: 800; color: #0044ff;">{{ listaUsuarios.length }}</span>
+          </div>
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.85em; color: #64748b; font-weight: 600;">Autos en Catálogo</span>
+            <span style="font-size: 1.8em; font-weight: 800; color: #0044ff;">{{ listaCarros.length }}</span>
+          </div>
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.85em; color: #64748b; font-weight: 600;">Citas Pendientes</span>
+            <span style="font-size: 1.8em; font-weight: 800; color: #0044ff;">{{ listaCitas.length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Principal -->
+      <div style="flex: 2 1 600px; display: flex; flex-direction: column; gap: 30px;">
+        
+        <!-- Lista de Usuarios -->
+        <div style="background-color: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+          <h3 style="margin-top: 0; color: #0c1e5a; font-size: 1.5em; font-weight: 800; margin-bottom: 20px;">Usuarios Registrados</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background-color: #f8fafc; text-align: left;">
+                  <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; color: #334155;">ID</th>
+                  <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; color: #334155;">Nombre</th>
+                  <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; color: #334155;">Correo</th>
+                  <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; color: #334155;">Rol</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of listaUsuarios" style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 12px; color: #64748b;">{{ user.id }}</td>
+                  <td style="padding: 12px; font-weight: 600; color: #0f172a;">{{ user.nombre }} {{ user.apellido }}</td>
+                  <td style="padding: 12px; color: #64748b;">{{ user.correo }}</td>
+                  <td style="padding: 12px;"><span [style.background-color]="user.rol === 'admin' ? '#fef08a' : '#dcfce7'" [style.color]="user.rol === 'admin' ? '#854d0e' : '#166534'" style="padding: 4px 10px; border-radius: 20px; font-size: 0.8em; font-weight: 700;">{{ user.rol | uppercase }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Lista de Citas (Memoria Genérica) -->
+        <div style="background-color: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+          <h3 style="margin-top: 0; color: #0c1e5a; font-size: 1.5em; font-weight: 800; margin-bottom: 20px;">Próximas Citas</h3>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div *ngFor="let cita of listaCitas" style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; background-color: #f8fafc;">
+              <div>
+                <h4 style="margin: 0; color: #0f172a; font-size: 1.1em;">{{ cita.cliente }}</h4>
+                <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9em;">Interesado en: <strong>{{ cita.auto }}</strong></p>
+              </div>
+              <div style="text-align: right;">
+                <div style="color: #334155; font-weight: 600; font-size: 0.95em;">{{ cita.fecha }} - {{ cita.hora }}</div>
+                <span style="display: inline-block; margin-top: 5px; padding: 4px 10px; background-color: #e0e7ff; color: #3730a3; border-radius: 20px; font-size: 0.8em; font-weight: 700;">{{ cita.estado }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agregar Auto al Catálogo -->
+        <div style="background-color: #ffffff; border-radius: 16px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+          <h3 style="margin-top: 0; color: #0c1e5a; font-size: 1.5em; font-weight: 800; margin-bottom: 20px;">Agregar Nuevo Auto</h3>
+          <form (submit)="agregarAuto($event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Marca</label>
+              <input type="text" [(ngModel)]="nuevoAuto.marca" name="marca" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Modelo</label>
+              <input type="text" [(ngModel)]="nuevoAuto.modelo" name="modelo" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Precio</label>
+              <input type="text" [(ngModel)]="nuevoAuto.precio" name="precio" placeholder="Ej. $50,000" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Año</label>
+              <input type="text" [(ngModel)]="nuevoAuto.ano" name="ano" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Kilometraje</label>
+              <input type="text" [(ngModel)]="nuevoAuto.kilometraje" name="kilometraje" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Motor</label>
+              <input type="text" [(ngModel)]="nuevoAuto.motor" name="motor" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">Transmisión</label>
+              <input type="text" [(ngModel)]="nuevoAuto.transmision" name="transmision" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="display: block; margin-bottom: 8px; font-size: 0.9em; font-weight: 600; color: #334155;">URL de Imagen</label>
+              <input type="text" [(ngModel)]="nuevoAuto.imagen" name="imagen" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="grid-column: span 2;">
+              <button type="submit" style="width: 100%; background-color: #0044ff; color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 1.05em; cursor: pointer; transition: 0.2s;">
+                + Agregar Auto al Catálogo
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
     </div>
   </div>
 

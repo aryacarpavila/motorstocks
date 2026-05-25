@@ -9,7 +9,17 @@ app.use(cors());          // Permite que tu app de Angular (puerto 4200) le haga
 app.use(express.json());  // Permite que el servidor entienda datos en formato JSON que envíe el cliente
 
 // Base de datos simulada en memoria (Array)
-const usuariosRegistrados = [];
+const usuariosRegistrados = [
+    {
+        id: 0,
+        nombre: 'Administrador',
+        apellido: 'Principal',
+        correo: 'admin@motorstocks.com',
+        password: 'motorstocks_123',
+        rol: 'admin',
+        fechaRegistro: new Date()
+    }
+];
 
 // ==========================================
 // RUTA 1: Recibir registros desde Angular (POST)
@@ -70,7 +80,8 @@ app.post('/api/registro', (req, res) => {
         correo: correo.toLowerCase(),
         password,
         fechaNacimiento,
-        fechaRegistro: new Date()
+        fechaRegistro: new Date(),
+        rol: 'cliente'
     };
 
     usuariosRegistrados.push(nuevoCliente);
@@ -103,7 +114,7 @@ app.post('/api/login', (req, res) => {
         return res.status(401).json({ ok: false, mensaje: 'Credenciales incorrectas. Verifica tu correo y contraseña.' });
     }
 
-    console.log(`🔑 [LOGIN]: Usuario ${usuario.nombre} ${usuario.apellido} inició sesión.`);
+    console.log(`🔑 [LOGIN]: Usuario ${usuario.nombre} ${usuario.apellido} inició sesión. (Rol: ${usuario.rol})`);
     
     return res.status(200).json({
         ok: true,
@@ -112,9 +123,22 @@ app.post('/api/login', (req, res) => {
             id: usuario.id,
             nombre: usuario.nombre,
             apellido: usuario.apellido,
-            correo: usuario.correo
+            correo: usuario.correo,
+            rol: usuario.rol
         }
     });
+});
+
+// ==========================================
+// RUTA 3: Ver todos los usuarios (GET)
+// ==========================================
+app.get('/api/usuarios', (req, res) => {
+    // Retornamos todos los usuarios sin las contraseñas
+    const usuariosSeguros = usuariosRegistrados.map(u => {
+        const { password, ...resto } = u;
+        return resto;
+    });
+    return res.status(200).json({ ok: true, usuarios: usuariosSeguros });
 });
 
 // ENCENDER EL SERVIDOR
