@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -9,8 +9,18 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   constructor(private cdr: ChangeDetectorRef) {}
+
+  ngOnInit() {
+    const savedUser = localStorage.getItem('usuarioLogueado');
+    if (savedUser) {
+      this.usuarioLogueado = JSON.parse(savedUser);
+      if (this.usuarioLogueado.rol === 'admin') {
+        this.cambiarSeccion('admin');
+      }
+    }
+  }
 
   // Control de navegación entre pantallas
   seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' = 'catalogo';
@@ -209,8 +219,9 @@ export class AppComponent {
       const data = await respuesta.json();
 
       if (data.ok) {
-        // Guardamos el usuario en memoria
+        // Guardamos el usuario en memoria y localStorage
         this.usuarioLogueado = data.usuario;
+        localStorage.setItem('usuarioLogueado', JSON.stringify(data.usuario));
         
         // Limpiamos los campos
         this.loginData = { correo: '', password: '' };
@@ -239,6 +250,7 @@ export class AppComponent {
 
   cerrarSesion() {
     this.usuarioLogueado = null;
+    localStorage.removeItem('usuarioLogueado');
     this.menuPerfilAbierto = false;
     this.seccionActiva = 'catalogo';
     this.cdr.detectChanges();
@@ -271,5 +283,18 @@ export class AppComponent {
     };
     alert('¡Auto agregado exitosamente al catálogo!');
     this.cdr.detectChanges();
+  }
+
+  mostrarProximamente() {
+    alert('Próximamente se hará, confía');
+  }
+
+  cambiarEstadoCita(cita: any, estado: string) {
+    cita.estado = estado;
+    this.cdr.detectChanges();
+  }
+
+  verDetallesCita(cita: any) {
+    alert(`Cargando información completa de la cita con ${cita.cliente}...`);
   }
 }
