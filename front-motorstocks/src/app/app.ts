@@ -37,7 +37,11 @@ export class AppComponent implements OnInit {
       kilometraje: '0 km (Nuevo)',
       imagen: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=600',
       motor: 'Eléctrico (1,020 hp)',
-      transmision: 'Automática'
+      transmision: 'Automática',
+      blindaje: 'Ninguno',
+      color: 'Blanco',
+      direccion: 'Electrica',
+      combustible: 'Electrico'  	
     },
     {
       marca: 'Porsche',
@@ -47,7 +51,11 @@ export class AppComponent implements OnInit {
       kilometraje: '4,200 km',
       imagen: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600',
       motor: '3.0L Twin-Turbo Flat-6',
-      transmision: 'PDK 8 vel.'
+      transmision: 'PDK 8 vel.',
+      blindaje: 'Ninguno',
+      color: 'Negro',
+      direccion: 'Hidraulica',
+      combustible: 'Gasolina'   
     },
     {
       marca: 'BMW',
@@ -57,7 +65,11 @@ export class AppComponent implements OnInit {
       kilometraje: '0 km (Nuevo)',
       imagen: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600',
       motor: '3.0L TwinPower Turbo',
-      transmision: 'Aut. M 8 vel.'
+      transmision: 'Aut. M 8 vel.',
+      blindaje: 'Ninguno',
+      color: 'Blanco',
+      direccion: 'Hidraulica',
+      combustible: 'Gasolina'   
     },
     {
       marca: 'Audi',
@@ -67,7 +79,11 @@ export class AppComponent implements OnInit {
       kilometraje: '12,500 km',
       imagen: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=600',
       motor: 'Eléctrico (637 hp)',
-      transmision: 'Automática'
+      transmision: 'Automática',
+      blindaje: 'Ninguno',
+      color: 'Gris',
+      direccion: 'Hidraulica',
+      combustible: 'Gasolina'   
     }
   ];
   listaUsuarios: any[] = [];
@@ -84,10 +100,32 @@ export class AppComponent implements OnInit {
     kilometraje: '',
     imagen: '',
     motor: '',
-    transmision: ''
+    transmision: '',
+    blindaje: '',
+    color: '',
+    direccion: '',
+    combustible: '',
+    vin: ''
   };
+   autoConEspecificacionesVisibles: string | null = null;
+   carroModal: any = null;
+   mostrarModalRegistroAuto: boolean = false;
 
+   abrirModal(carro: any) {
+     this.carroModal = carro;
+   }
 
+   cerrarModal() {
+     this.carroModal = null;
+   }
+
+   abrirModalRegistroAuto() {
+     this.mostrarModalRegistroAuto = true;
+   }
+
+   cerrarModalRegistroAuto() {
+     this.mostrarModalRegistroAuto = false;
+   }
   // NUEVAS VARIABLES PARA MOSTRAR MENSAJES EN LA INTERFAZ
   mensajeError: string | null = null;
   mensajeExito: string | null = null;
@@ -123,9 +161,15 @@ export class AppComponent implements OnInit {
     }
   }
 
-  verDetalles(modelo: string) {
-    alert(`Cargando ficha técnica completa del ${modelo}...`);
-  }
+    verDetalles(modelo: string) {
+       // Si vuelves a dar clic en el mismo auto, se ocultan. Si no, se muestran las del nuevo auto.
+       if (this.autoConEspecificacionesVisibles === modelo) {
+         this.autoConEspecificacionesVisibles = null;
+      } else {
+        this.autoConEspecificacionesVisibles = modelo;
+     }
+   }
+
 
   cotizar(modelo: string) {
     alert(`¡Solicitud recibida! Un asesor de VestIA Motors te contactará para cotizar el ${modelo}.`);
@@ -279,9 +323,10 @@ export class AppComponent implements OnInit {
     
     // Limpiamos el formulario
     this.nuevoAuto = {
-      marca: '', modelo: '', precio: '', ano: '', kilometraje: '', imagen: '', motor: '', transmision: ''
+      marca: '', modelo: '', precio: '', ano: '', kilometraje: '', imagen: '', motor: '', transmision: '', blindaje: '', color: '', direccion: '', combustible: '', vin: ''
     };
     alert('¡Auto agregado exitosamente al catálogo!');
+    this.mostrarModalRegistroAuto = false;
     this.cdr.detectChanges();
   }
 
