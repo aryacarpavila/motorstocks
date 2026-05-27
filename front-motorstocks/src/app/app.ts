@@ -318,6 +318,14 @@ export class AppComponent implements OnInit {
 
   agregarAuto(evento: Event) {
     evento.preventDefault();
+    
+    // Validación de campos obligatorios
+    const auto = this.nuevoAuto;
+    if (!auto.marca || !auto.modelo || !auto.precio || !auto.ano || !auto.imagen || !auto.vin) {
+      alert('Por favor, completa los campos obligatorios: Marca, Modelo, Precio, Año, Número de VIN e Imagen.');
+      return;
+    }
+
     // Añadimos el auto al principio de la lista
     this.listaCarros.unshift({ ...this.nuevoAuto });
     
