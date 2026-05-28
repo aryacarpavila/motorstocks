@@ -511,7 +511,7 @@
         </div>
         <div>
           <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Precio</label>
-          <input type="text" [(ngModel)]="nuevoAuto.precio" name="precio" placeholder="$" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box; border-radius: 6px;">
+          <input type="text" [ngModel]="nuevoAuto.precio" (ngModelChange)="formatearPrecioInput($event)" name="precio" placeholder="$" required style="width: 100%; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box; border-radius: 6px;">
         </div>
         <div>
           <label style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Año</label>

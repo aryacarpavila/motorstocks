@@ -1,5 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const dbPath = path.join(__dirname, 'db.json');
 
 const app = express();
 const PORT = 3000; // El backend correrá en el puerto 3000
@@ -141,9 +145,52 @@ app.get('/api/usuarios', (req, res) => {
     return res.status(200).json({ ok: true, usuarios: usuariosSeguros });
 });
 
+// ==========================================
+// RUTA 4: Obtener Carros (GET)
+// ==========================================
+app.get('/api/carros', (req, res) => {
+    fs.readFile(dbPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos' });
+        const db = JSON.parse(data);
+        // Devolver el arreglo de carros directamente para compatibilidad con el frontend actual
+        return res.status(200).json(db.carros);
+    });
+});
+
+// ==========================================
+// RUTA 5: Registrar Carro (POST)
+// ==========================================
+app.post('/api/carros', (req, res) => {
+    const nuevoCarro = req.body;
+    fs.readFile(dbPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos' });
+        
+        const db = JSON.parse(data);
+        
+        // Validar VIN único
+        if (nuevoCarro.vin) {
+            const existeVin = db.carros.find(carro => carro.vin && carro.vin.toString().toLowerCase() === nuevoCarro.vin.toString().toLowerCase());
+            if (existeVin) {
+                return res.status(400).json({ ok: false, mensaje: 'El número de VIN ya está registrado en otro vehículo.' });
+            }
+        }
+
+        if (!nuevoCarro.id) {
+            nuevoCarro.id = Date.now().toString(); // Asignar un ID único
+        }
+        db.carros.push(nuevoCarro);
+        
+        fs.writeFile(dbPath, JSON.stringify(db, null, 2), (err) => {
+            if (err) return res.status(500).json({ ok: false, mensaje: 'Error al guardar en la base de datos' });
+            return res.status(201).json(nuevoCarro);
+        });
+    });
+});
+
 // ENCENDER EL SERVIDOR
 app.listen(PORT, () => {
     console.log(`\n🚀 Servidor Backend de MotorStocks listo y escuchando en: http://localhost:${PORT}`);
     console.log(`👉 Ruta para registrar: POST http://localhost:${PORT}/api/registro`);
-    console.log(`👉 Ruta para ver usuarios: GET http://localhost:${PORT}/api/usuarios\n`);
+    console.log(`👉 Ruta para ver usuarios: GET http://localhost:${PORT}/api/usuarios`);
+    console.log(`👉 Ruta para carros: GET/POST http://localhost:${PORT}/api/carros\n`);
 });
