@@ -21,11 +21,18 @@ const usuariosRegistrados = [
     }
 ];
 
-let citaIdCounter = 3;
-const listaCitas = [
-    { id: 1, clienteId: null, cliente: 'Juan Pérez', auto: 'Tesla Model S Plaid', fecha: '2026-06-01', hora: '10:00 AM', tipo: 'Test Drive', estado: 'Pendiente', fechaCreacion: new Date() },
-    { id: 2, clienteId: null, cliente: 'María Gómez', auto: 'Porsche 911 Carrera GTS', fecha: '2026-06-05', hora: '02:30 PM', tipo: 'Consulta de Precio', estado: 'Confirmada', fechaCreacion: new Date() }
+// Vehículos con disponibilidad
+const listaVehiculos = [
+    { id: 'v001', nombre: 'Tesla Model S Plaid',     disponible: true },
+    { id: 'v002', nombre: 'Porsche 911 Carrera GTS', disponible: true },
+    { id: 'v003', nombre: 'BMW M4 Competition',       disponible: true },
+    { id: 'v004', nombre: 'Audi RS e-tron GT',        disponible: true }
 ];
+
+const HORARIOS = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'];
+
+let citaIdCounter = 1;
+const listaCitas = [];
 
 // ==========================================
 // RUTA 1: Recibir registros desde Angular (POST)
@@ -148,71 +155,122 @@ app.get('/api/usuarios', (req, res) => {
 });
 
 // ==========================================
-// RUTA 4: Obtener todas las citas (GET)
+// RUTA 4: Obtener todas las citas (GET - admin)
 // ==========================================
 app.get('/api/citas', (req, res) => {
     return res.status(200).json({ ok: true, citas: listaCitas });
 });
 
 // ==========================================
-// RUTA 5: Registrar nueva cita (POST)
+// RUTA 5: Citas por usuario (GET)
 // ==========================================
-app.post('/api/citas', (req, res) => {
-    const { clienteId, cliente, auto, fecha, hora, tipo } = req.body;
-
-    if (!cliente || !auto || !fecha || !hora || !tipo) {
-        return res.status(400).json({ ok: false, mensaje: 'Todos los campos son obligatorios.' });
-    }
-
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const fechaCita = new Date(fecha + 'T00:00:00');
-    if (fechaCita < hoy) {
-        return res.status(400).json({ ok: false, mensaje: 'La fecha de la cita debe ser hoy o una fecha futura.' });
-    }
-
-    const nuevaCita = {
-        id: citaIdCounter++,
-        clienteId: clienteId || null,
-        cliente,
-        auto,
-        fecha,
-        hora,
-        tipo,
-        estado: 'Pendiente',
-        fechaCreacion: new Date()
-    };
-
-    listaCitas.push(nuevaCita);
-    console.log(`📅 [CITA]: Nueva cita agendada por ${cliente} para el vehículo ${auto}.`);
-
-    return res.status(201).json({
-        ok: true,
-        mensaje: `¡Cita agendada con éxito! Te esperamos el ${fecha} a las ${hora}.`
-    });
+app.get('/api/citas/usuario/:idUsuario', (req, res) => {
+    const citas = listaCitas.filter(c => String(c.idUsuario) === String(req.params.idUsuario));
+    return res.status(200).json({ ok: true, citas });
 });
 
 // ==========================================
-// RUTA 6: Actualizar estado de cita (PATCH)
+// RUTA 6: Horarios disponibles (GET)
+// ==========================================
+app.get('/api/horarios-disponibles', (req, res) => {
+    const { idVehiculo, fecha } = req.query;
+    if (!idVehiculo || !fecha) {
+        return res.status(400).json({ ok: false, mensaje: 'idVehiculo y fecha son requeridos.' });
+    }
+    const ocupados = listaCitas
+        .filter(c => c.idVehiculo === idVehiculo && c.fecha === fecha && c.estado !== 'cancelada')
+        .map(c => c.horario);
+    const disponibles = HORARIOS.filter(h => !ocupados.includes(h));
+    return res.status(200).json({ ok: true, horarios: disponibles });
+});
+
+// ==========================================
+// RUTA 7: Verificar disponibilidad de vehículo (GET)
+// ==========================================
+app.get('/api/vehiculos/:id', (req, res) => {
+    const vehiculo = listaVehiculos.find(v => v.id === req.params.id);
+    if (!vehiculo) return res.status(404).json({ ok: false, mensaje: 'Vehículo no encontrado.' });
+    return res.status(200).json({ ok: true, vehiculo });
+});
+
+// ==========================================
+// RUTA 8: Registrar nueva cita (POST)
+// ==========================================
+app.post('/api/citas', (req, res) => {
+    const { idUsuario, idVehiculo, tipoCita, fecha, horario, cliente, auto } = req.body;
+
+    // Paso 8: validar campos completos
+    if (!idUsuario || !idVehiculo || !tipoCita || !fecha || !horario) {
+        return res.status(400).json({ ok: false, mensaje: 'Completa todos los campos para continuar.' });
+    }
+
+    // Paso 3: verificar disponibilidad del vehículo
+    const vehiculo = listaVehiculos.find(v => v.id === idVehiculo);
+    if (!vehiculo || !vehiculo.disponible) {
+        return res.status(400).json({ ok: false, mensaje: 'Este vehículo ya no está disponible.' });
+    }
+
+    // Paso 4: verificar cita duplicada activa
+    const citaDuplicada = listaCitas.find(c =>
+        String(c.idUsuario) === String(idUsuario) &&
+        c.idVehiculo === idVehiculo &&
+        c.estado === 'activa'
+    );
+    if (citaDuplicada) {
+        return res.status(400).json({ ok: false, mensaje: 'Ya tienes una cita activa para este vehículo.' });
+    }
+
+    // Verificar que el horario siga disponible
+    const horarioOcupado = listaCitas.find(c =>
+        c.idVehiculo === idVehiculo &&
+        c.fecha === fecha &&
+        c.horario === horario &&
+        c.estado !== 'cancelada'
+    );
+    if (horarioOcupado) {
+        return res.status(400).json({ ok: false, mensaje: 'El horario seleccionado ya no está disponible. Por favor elige otro.' });
+    }
+
+    const nuevaCita = {
+        id: String(citaIdCounter++),
+        idUsuario: String(idUsuario),
+        idVehiculo,
+        tipoCita,
+        fecha,
+        horario,
+        estado: 'activa',
+        // Campos de visualización para el panel admin
+        cliente: cliente || '',
+        auto: auto || vehiculo.nombre,
+        fechaCreacion: new Date().toISOString()
+    };
+
+    listaCitas.push(nuevaCita);
+    console.log(`📅 [CITA]: Nueva cita registrada — ${nuevaCita.cliente} → ${nuevaCita.auto} el ${fecha} a las ${horario}`);
+
+    return res.status(201).json({ ok: true, mensaje: 'Cita registrada exitosamente.', cita: nuevaCita });
+});
+
+// ==========================================
+// RUTA 9: Actualizar estado de cita (PATCH)
 // ==========================================
 app.patch('/api/citas/:id', (req, res) => {
-    const id = parseInt(req.params.id);
     const { estado } = req.body;
+    const estadosValidos = ['activa', 'completada', 'cancelada'];
 
-    const estadosValidos = ['Pendiente', 'Confirmada', 'Cancelada'];
     if (!estado || !estadosValidos.includes(estado)) {
         return res.status(400).json({ ok: false, mensaje: 'Estado inválido.' });
     }
 
-    const cita = listaCitas.find(c => c.id === id);
+    const cita = listaCitas.find(c => String(c.id) === String(req.params.id));
     if (!cita) {
         return res.status(404).json({ ok: false, mensaje: 'Cita no encontrada.' });
     }
 
     cita.estado = estado;
-    console.log(`📅 [CITA]: Cita #${id} de ${cita.cliente} actualizada a estado: ${estado}`);
+    console.log(`📅 [CITA]: Cita #${req.params.id} de ${cita.cliente} → estado: ${estado}`);
 
-    return res.status(200).json({ ok: true, mensaje: `Cita actualizada a ${estado}.` });
+    return res.status(200).json({ ok: true, mensaje: `Cita actualizada a "${estado}".` });
 });
 
 // ENCENDER EL SERVIDOR

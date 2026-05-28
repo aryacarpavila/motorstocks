@@ -1,0 +1,94 @@
+<div style="font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; min-height: 100vh; padding: 60px 20px; box-sizing: border-box;">
+  <div style="max-width: 800px; margin: 0 auto;">
+
+    <!-- Encabezado -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; flex-wrap: wrap; gap: 15px;">
+      <div>
+        <h2 style="font-size: 2.2em; font-weight: 900; color: #111111; text-transform: uppercase; margin: 0 0 5px 0;">
+          Mis Citas</h2>
+        <p style="color: #555; margin: 0; font-size: 0.95em;">
+          Historial de citas de <strong>{{ usuario?.nombre }} {{ usuario?.apellido }}</strong>
+        </p>
+      </div>
+      <button (click)="volverAlCatalogo()"
+        style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 10px 22px; font-weight: 700; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#0044ff'; this.style.color='#ffffff'"
+        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0044ff'">
+        ← Volver al Catálogo
+      </button>
+    </div>
+
+    <!-- Cargando -->
+    <div *ngIf="cargando" style="text-align: center; padding: 60px; color: #777; font-size: 1em;">
+      Cargando tus citas...
+    </div>
+
+    <!-- Sin citas -->
+    <div *ngIf="!cargando && citas.length === 0"
+      style="background-color: #ffffff; padding: 60px 40px; text-align: center; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-radius: 12px;">
+      <div style="font-size: 3.5em; margin-bottom: 15px;">📅</div>
+      <h3 style="font-size: 1.4em; font-weight: 800; color: #111111; margin: 0 0 10px 0;">
+        Aún no tienes citas agendadas</h3>
+      <p style="color: #777; margin: 0 0 25px 0;">Explora nuestro catálogo y agenda una visita a tu vehículo favorito.</p>
+      <button (click)="agendarOtraCita()"
+        style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px 30px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#0033cc'"
+        onmouseout="this.style.backgroundColor='#0044ff'">
+        Ver Catálogo
+      </button>
+    </div>
+
+    <!-- Lista de citas -->
+    <div *ngIf="!cargando && citas.length > 0" style="display: flex; flex-direction: column; gap: 20px;">
+      <div *ngFor="let cita of citas"
+        style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px;">
+
+        <!-- Info de la cita -->
+        <div style="flex: 1; min-width: 220px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <span
+              [style.background-color]="estadoColor(cita.estado)"
+              style="color: #ffffff; padding: 4px 12px; font-size: 0.78em; font-weight: 800; text-transform: uppercase; border-radius: 20px;">
+              {{ estadoLabel(cita.estado) }}
+            </span>
+            <span style="font-size: 0.82em; color: #777;">
+              {{ tipoCitaLabel[cita.tipoCita] || cita.tipoCita }}
+            </span>
+          </div>
+
+          <h3 style="margin: 0 0 6px 0; font-size: 1.25em; font-weight: 800; color: #0c1e5a;">
+            {{ cita.auto }}
+          </h3>
+
+          <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; color: #555; font-size: 0.9em;">
+              <span style="font-size: 1em;">📅</span>
+              <strong>{{ cita.fecha }}</strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; color: #555; font-size: 0.9em;">
+              <span style="font-size: 1em;">🕐</span>
+              <strong>{{ cita.horario }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- ID de la cita -->
+        <div style="text-align: right; color: #bbb; font-size: 0.8em; font-weight: 600;">
+          Cita #{{ cita.id }}
+        </div>
+
+      </div>
+
+      <!-- Botón agendar otra -->
+      <div style="text-align: center; margin-top: 10px;">
+        <button (click)="agendarOtraCita()"
+          style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px 35px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+          onmouseover="this.style.backgroundColor='#0033cc'"
+          onmouseout="this.style.backgroundColor='#0044ff'">
+          Agendar Otra Cita
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

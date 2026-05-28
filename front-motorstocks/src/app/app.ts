@@ -1,16 +1,41 @@
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class AppComponent implements OnInit {
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef, private router: Router) {
+    // Escuchar cambios de ruta para mostrar/ocultar contenido principal
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
+    ).subscribe((e: NavigationEnd) => {
+      const url = e.urlAfterRedirects;
+      if (url === '/' || url === '') {
+        const pendingSection = localStorage.getItem('pendingSection');
+        if (pendingSection) {
+          localStorage.removeItem('pendingSection');
+          this.seccionActiva = pendingSection as any;
+          if (pendingSection === 'admin') {
+            this.cargarUsuarios();
+            this.cargarCitas();
+          }
+        } else if (this.seccionActiva === 'route') {
+          this.seccionActiva = 'catalogo';
+        }
+      } else {
+        this.seccionActiva = 'route';
+      }
+      this.cdr.detectChanges();
+    });
+  }
 
   ngOnInit() {
     const savedUser = localStorage.getItem('usuarioLogueado');
@@ -23,67 +48,43 @@ export class AppComponent implements OnInit {
   }
 
   // Control de navegación entre pantallas
-  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' = 'catalogo';
+  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' | 'route' = 'catalogo';
   tituloCatalogo = 'Concesionario Premium MotorStocks';
   subtitulo = 'Tu próximo auto de altas prestaciones está aquí';
 
   // Datos extendidos de los autos para el Concesionario
   listaCarros = [
     {
-      marca: 'Tesla',
-      modelo: 'Model S Plaid',
-      precio: '$89,990',
-      ano: '2025',
+      id: 'v001', disponible: true,
+      marca: 'Tesla', modelo: 'Model S Plaid', precio: '$89,990', ano: '2025',
       kilometraje: '0 km (Nuevo)',
       imagen: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=600',
-      motor: 'Eléctrico (1,020 hp)',
-      transmision: 'Automática',
-      blindaje: 'Ninguno',
-      color: 'Blanco',
-      direccion: 'Electrica',
-      combustible: 'Electrico'  	
+      motor: 'Eléctrico (1,020 hp)', transmision: 'Automática', blindaje: 'Ninguno',
+      color: 'Blanco', direccion: 'Electrica', combustible: 'Electrico'
     },
     {
-      marca: 'Porsche',
-      modelo: '911 Carrera GTS',
-      precio: '$140,900',
-      ano: '2024',
+      id: 'v002', disponible: true,
+      marca: 'Porsche', modelo: '911 Carrera GTS', precio: '$140,900', ano: '2024',
       kilometraje: '4,200 km',
       imagen: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600',
-      motor: '3.0L Twin-Turbo Flat-6',
-      transmision: 'PDK 8 vel.',
-      blindaje: 'Ninguno',
-      color: 'Negro',
-      direccion: 'Hidraulica',
-      combustible: 'Gasolina'   
+      motor: '3.0L Twin-Turbo Flat-6', transmision: 'PDK 8 vel.', blindaje: 'Ninguno',
+      color: 'Negro', direccion: 'Hidraulica', combustible: 'Gasolina'
     },
     {
-      marca: 'BMW',
-      modelo: 'M4 Competition',
-      precio: '$78,100',
-      ano: '2025',
+      id: 'v003', disponible: true,
+      marca: 'BMW', modelo: 'M4 Competition', precio: '$78,100', ano: '2025',
       kilometraje: '0 km (Nuevo)',
       imagen: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600',
-      motor: '3.0L TwinPower Turbo',
-      transmision: 'Aut. M 8 vel.',
-      blindaje: 'Ninguno',
-      color: 'Blanco',
-      direccion: 'Hidraulica',
-      combustible: 'Gasolina'   
+      motor: '3.0L TwinPower Turbo', transmision: 'Aut. M 8 vel.', blindaje: 'Ninguno',
+      color: 'Blanco', direccion: 'Hidraulica', combustible: 'Gasolina'
     },
     {
-      marca: 'Audi',
-      modelo: 'RS e-tron GT',
-      precio: '$106,500',
-      ano: '2023',
+      id: 'v004', disponible: true,
+      marca: 'Audi', modelo: 'RS e-tron GT', precio: '$106,500', ano: '2023',
       kilometraje: '12,500 km',
       imagen: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=600',
-      motor: 'Eléctrico (637 hp)',
-      transmision: 'Automática',
-      blindaje: 'Ninguno',
-      color: 'Gris',
-      direccion: 'Hidraulica',
-      combustible: 'Gasolina'   
+      motor: 'Eléctrico (637 hp)', transmision: 'Automática', blindaje: 'Ninguno',
+      color: 'Gris', direccion: 'Hidraulica', combustible: 'Gasolina'
     }
   ];
   listaUsuarios: any[] = [];
@@ -180,12 +181,33 @@ export class AppComponent implements OnInit {
 
   // Cambiar entre vistas
   cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin') {
-    this.seccionActiva = seccion;
-    this.menuPerfilAbierto = false;
-    if (seccion === 'admin') {
-      this.cargarUsuarios();
-      this.cargarCitas();
+    if (this.seccionActiva === 'route') {
+      // Venimos de una ruta hija: primero navegar a '/', luego cambiar sección
+      localStorage.setItem('pendingSection', seccion);
+      this.router.navigate(['/']);
+    } else {
+      this.seccionActiva = seccion;
+      this.menuPerfilAbierto = false;
+      if (seccion === 'admin') {
+        this.cargarUsuarios();
+        this.cargarCitas();
+      }
     }
+  }
+
+  // Navegar al componente de agendar cita
+  irAAgendarCita(carro: any) {
+    if (!this.usuarioLogueado) {
+      this.cambiarSeccion('login');
+      return;
+    }
+    sessionStorage.setItem('vehiculoParaCita', JSON.stringify(carro));
+    this.router.navigate(['/agendar-cita', carro.id], { state: { vehiculo: carro } });
+  }
+
+  // Navegar al historial de citas
+  irAHistorialCitas() {
+    this.router.navigate(['/historial-citas']);
   }
 
     verDetalles(modelo: string) {
@@ -436,14 +458,16 @@ export class AppComponent implements OnInit {
         cita.estado = estado;
         this.cdr.detectChanges();
       }
-    } catch (error) {
+    } catch {
       cita.estado = estado;
       this.cdr.detectChanges();
     }
   }
 
   verDetallesCita(cita: any) {
-    const tipo = cita.tipo ? `\nTipo: ${cita.tipo}` : '';
-    alert(`Cita con ${cita.cliente}\nVehículo: ${cita.auto}\nFecha: ${cita.fecha} a las ${cita.hora}${tipo}\nEstado: ${cita.estado}`);
+    const tipoLabels: any = { inspeccion: 'Inspección', prueba_de_manejo: 'Prueba de Manejo' };
+    const tipo = cita.tipoCita ? tipoLabels[cita.tipoCita] : (cita.tipo || '');
+    const horario = cita.horario || cita.hora || '';
+    alert(`Cita con ${cita.cliente}\nVehículo: ${cita.auto}\nFecha: ${cita.fecha} a las ${horario}\nTipo: ${tipo}\nEstado: ${cita.estado}`);
   }
 }

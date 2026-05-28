@@ -1,0 +1,145 @@
+<div style="font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; min-height: 100vh; padding: 60px 20px; box-sizing: border-box;">
+  <div style="max-width: 580px; margin: 0 auto;">
+
+    <!-- Mensajes de redireccion (auth / disponibilidad / duplicado) -->
+    <div *ngIf="mensajeError && !listoParaMostrar"
+      style="background-color: #ffffff; padding: 50px 40px; text-align: center; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+      <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
+      <p style="font-size: 1.1em; font-weight: 700; color: #dc2626; margin: 0 0 10px 0;">{{ mensajeError }}</p>
+      <p style="color: #777; font-size: 0.9em;">Redirigiendo...</p>
+    </div>
+
+    <!-- Confirmación de éxito -->
+    <div *ngIf="mensajeExito"
+      style="background-color: #ffffff; padding: 50px 40px; text-align: center; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+      <div style="font-size: 3em; margin-bottom: 15px;">✅</div>
+      <h2 style="color: #16a34a; font-size: 1.5em; font-weight: 900; margin: 0 0 10px 0;">¡Cita Registrada!</h2>
+      <p style="color: #555; margin: 0 0 5px 0;">{{ mensajeExito }}</p>
+      <p style="color: #777; font-size: 0.9em;">Redirigiendo a tu historial...</p>
+    </div>
+
+    <!-- Formulario principal -->
+    <div *ngIf="listoParaMostrar"
+      style="background-color: #ffffff; padding: 40px; border: 1px solid #ddd; box-shadow: 0 10px 40px rgba(0,0,0,0.05);">
+
+      <!-- Título -->
+      <div style="margin-bottom: 30px;">
+        <h2 style="font-size: 2em; font-weight: 900; color: #111111; text-transform: uppercase; margin: 0 0 5px 0;">
+          Agendar Cita</h2>
+        <p style="color: #555; margin: 0; font-size: 0.95em;">Completa los datos para reservar tu visita</p>
+      </div>
+
+      <!-- Resumen del vehículo -->
+      <div *ngIf="vehiculo"
+        style="display: flex; align-items: center; gap: 15px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 30px;">
+        <img [src]="vehiculo.imagen" [alt]="vehiculo.modelo"
+          style="width: 100px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0;">
+        <div>
+          <span style="font-size: 0.8em; color: #00a2ff; font-weight: 700; text-transform: uppercase;">
+            {{ vehiculo.marca }}</span>
+          <h4 style="margin: 2px 0 5px 0; font-size: 1.1em; color: #0c1e5a; font-weight: 800;">
+            {{ vehiculo.modelo }}</h4>
+          <span style="font-size: 1em; font-weight: 700; color: #0044ff;">{{ vehiculo.precio }}</span>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div style="display: flex; flex-direction: column; gap: 22px;">
+
+        <!-- Tipo de cita -->
+        <div>
+          <label
+            style="display: block; margin-bottom: 8px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">
+            Tipo de Cita
+          </label>
+          <div style="display: flex; gap: 15px;">
+            <label
+              [style.border]="citaForm.tipoCita === 'inspeccion' ? '2px solid #0044ff' : '2px solid #ddd'"
+              [style.background]="citaForm.tipoCita === 'inspeccion' ? '#eff6ff' : '#f9f9f9'"
+              style="flex: 1; padding: 18px 15px; border-radius: 8px; cursor: pointer; text-align: center; transition: 0.2s;">
+              <input type="radio" name="tipoCita" value="inspeccion" [(ngModel)]="citaForm.tipoCita"
+                style="display: none;">
+              <div style="font-size: 1.5em; margin-bottom: 6px;">🔍</div>
+              <div style="font-weight: 700; font-size: 0.9em; color: #111111;">Inspección</div>
+              <div style="font-size: 0.78em; color: #777; margin-top: 3px;">Revisión técnica del vehículo</div>
+            </label>
+            <label
+              [style.border]="citaForm.tipoCita === 'prueba_de_manejo' ? '2px solid #0044ff' : '2px solid #ddd'"
+              [style.background]="citaForm.tipoCita === 'prueba_de_manejo' ? '#eff6ff' : '#f9f9f9'"
+              style="flex: 1; padding: 18px 15px; border-radius: 8px; cursor: pointer; text-align: center; transition: 0.2s;">
+              <input type="radio" name="tipoCita" value="prueba_de_manejo" [(ngModel)]="citaForm.tipoCita"
+                style="display: none;">
+              <div style="font-size: 1.5em; margin-bottom: 6px;">🚗</div>
+              <div style="font-weight: 700; font-size: 0.9em; color: #111111;">Prueba de Manejo</div>
+              <div style="font-size: 0.78em; color: #777; margin-top: 3px;">Maneja el vehículo tú mismo</div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Fecha -->
+        <div>
+          <label
+            style="display: block; margin-bottom: 8px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">
+            Fecha de la Cita
+          </label>
+          <input type="date" [(ngModel)]="citaForm.fecha" name="citaFecha" [min]="fechaMinima"
+            (change)="onFechaChange()"
+            style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box; border-radius: 6px; font-size: 1em;">
+        </div>
+
+        <!-- Horarios disponibles -->
+        <div *ngIf="citaForm.fecha">
+          <label
+            style="display: block; margin-bottom: 8px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">
+            Horario Disponible
+          </label>
+
+          <div *ngIf="cargandoHorarios" style="color: #777; font-size: 0.9em; padding: 10px 0;">
+            Consultando horarios disponibles...
+          </div>
+
+          <div *ngIf="!cargandoHorarios && horariosDisponibles.length === 0"
+            style="background-color: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626; padding: 12px 16px; font-size: 0.9em; font-weight: 600; border-radius: 4px;">
+            ⚠️ No hay horarios disponibles para esta fecha. Selecciona otra fecha.
+          </div>
+
+          <div *ngIf="!cargandoHorarios && horariosDisponibles.length > 0"
+            style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <label *ngFor="let hora of horariosDisponibles"
+              [style.border]="citaForm.horario === hora ? '2px solid #0044ff' : '2px solid #ddd'"
+              [style.background]="citaForm.horario === hora ? '#0044ff' : '#f9f9f9'"
+              [style.color]="citaForm.horario === hora ? '#ffffff' : '#111111'"
+              style="padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.9em; transition: 0.2s;">
+              <input type="radio" name="horario" [value]="hora" [(ngModel)]="citaForm.horario"
+                style="display: none;">
+              {{ hora }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="mensajeError && listoParaMostrar"
+          style="background-color: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626; padding: 12px 16px; font-size: 0.9em; font-weight: 600; border-radius: 4px;">
+          ⚠️ {{ mensajeError }}
+        </div>
+
+        <!-- Botones -->
+        <div style="display: flex; gap: 15px; margin-top: 10px;">
+          <button (click)="cancelar()" [disabled]="cargando"
+            style="flex: 1; background-color: transparent; color: #111111; border: 2px solid #111111; padding: 14px; font-weight: 700; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+            onmouseover="this.style.backgroundColor='#111111'; this.style.color='#ffffff'"
+            onmouseout="this.style.backgroundColor='transparent'; this.style.color='#111111'">
+            Cancelar
+          </button>
+          <button (click)="confirmar()" [disabled]="cargando"
+            style="flex: 2; background-color: #0044ff; color: #ffffff; border: none; padding: 14px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+            onmouseover="this.style.backgroundColor='#0033cc'"
+            onmouseout="this.style.backgroundColor='#0044ff'">
+            {{ cargando ? 'Registrando...' : 'Confirmar Cita' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
