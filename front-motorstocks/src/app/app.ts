@@ -111,6 +111,16 @@ export class AppComponent implements OnInit {
    carroModal: any = null;
    mostrarModalRegistroAuto: boolean = false;
 
+   mostrarModalAgendarCita: boolean = false;
+   autoSeleccionadoParaCita: any = null;
+   citaData = { auto: '', fecha: '', hora: '', tipo: '' };
+   errorCita: string | null = null;
+   exitoCita: string | null = null;
+
+   get fechaMinima(): string {
+     return new Date().toISOString().split('T')[0];
+   }
+
    abrirModal(carro: any) {
      this.carroModal = carro;
    }
@@ -125,6 +135,22 @@ export class AppComponent implements OnInit {
 
    cerrarModalRegistroAuto() {
      this.mostrarModalRegistroAuto = false;
+   }
+
+   abrirModalAgendarCita(carro: any) {
+     this.autoSeleccionadoParaCita = carro;
+     this.citaData = { auto: `${carro.marca} ${carro.modelo}`, fecha: '', hora: '', tipo: '' };
+     this.errorCita = null;
+     this.exitoCita = null;
+     this.mostrarModalAgendarCita = true;
+   }
+
+   cerrarModalAgendarCita() {
+     this.mostrarModalAgendarCita = false;
+     this.autoSeleccionadoParaCita = null;
+     this.citaData = { auto: '', fecha: '', hora: '', tipo: '' };
+     this.errorCita = null;
+     this.exitoCita = null;
    }
   // NUEVAS VARIABLES PARA MOSTRAR MENSAJES EN LA INTERFAZ
   mensajeError: string | null = null;
@@ -155,9 +181,10 @@ export class AppComponent implements OnInit {
   // Cambiar entre vistas
   cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin') {
     this.seccionActiva = seccion;
-    this.menuPerfilAbierto = false; // Cierra el menú al navegar
+    this.menuPerfilAbierto = false;
     if (seccion === 'admin') {
       this.cargarUsuarios();
+      this.cargarCitas();
     }
   }
 
@@ -316,6 +343,61 @@ export class AppComponent implements OnInit {
     }
   }
 
+  async cargarCitas() {
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/citas');
+      const data = await respuesta.json();
+      if (data.ok) {
+        this.listaCitas = data.citas;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Error cargando citas', error);
+    }
+  }
+
+  async agendarCita(evento: Event) {
+    evento.preventDefault();
+    this.errorCita = null;
+    this.exitoCita = null;
+
+    if (!this.citaData.fecha || !this.citaData.hora || !this.citaData.tipo) {
+      this.errorCita = 'Por favor, completa todos los campos de la cita.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const payload = {
+      clienteId: this.usuarioLogueado.id,
+      cliente: `${this.usuarioLogueado.nombre} ${this.usuarioLogueado.apellido}`,
+      auto: this.citaData.auto,
+      fecha: this.citaData.fecha,
+      hora: this.citaData.hora,
+      tipo: this.citaData.tipo
+    };
+
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/citas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await respuesta.json();
+
+      if (data.ok) {
+        this.exitoCita = data.mensaje;
+        this.cdr.detectChanges();
+        setTimeout(() => { this.cerrarModalAgendarCita(); }, 2500);
+      } else {
+        this.errorCita = data.mensaje;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      this.errorCita = 'Error de conexión con el servidor.';
+      this.cdr.detectChanges();
+    }
+  }
+
   agregarAuto(evento: Event) {
     evento.preventDefault();
     
@@ -342,12 +424,26 @@ export class AppComponent implements OnInit {
     alert('Próximamente se hará, confía');
   }
 
-  cambiarEstadoCita(cita: any, estado: string) {
-    cita.estado = estado;
-    this.cdr.detectChanges();
+  async cambiarEstadoCita(cita: any, estado: string) {
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/citas/${cita.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado })
+      });
+      const data = await respuesta.json();
+      if (data.ok) {
+        cita.estado = estado;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      cita.estado = estado;
+      this.cdr.detectChanges();
+    }
   }
 
   verDetallesCita(cita: any) {
-    alert(`Cargando información completa de la cita con ${cita.cliente}...`);
+    const tipo = cita.tipo ? `\nTipo: ${cita.tipo}` : '';
+    alert(`Cita con ${cita.cliente}\nVehículo: ${cita.auto}\nFecha: ${cita.fecha} a las ${cita.hora}${tipo}\nEstado: ${cita.estado}`);
   }
 }
