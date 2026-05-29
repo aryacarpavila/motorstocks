@@ -5,8 +5,8 @@
   <nav
     style="background-color: #111111; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
     <div style="display: flex; align-items: center; gap: 25px;">
-      <span
-        style="font-size: 1.8em; font-weight: 900; letter-spacing: -1px; color: #ffffff; text-transform: uppercase;">
+      <span (click)="cambiarSeccion('catalogo')"
+        style="font-size: 1.8em; font-weight: 900; letter-spacing: -1px; color: #ffffff; text-transform: uppercase; cursor: pointer;">
         Motor<span style="color: #0044ff;">Stocks</span>
       </span>
 
@@ -60,6 +60,10 @@
               style="width: 100%; text-align: left; padding: 12px 20px; border: none; background: transparent; cursor: pointer; color: #333; font-size: 0.9em; font-weight: 600; border-bottom: 1px solid #eee; transition: background 0.2s;"
               onmouseover="this.style.background='#f4f4f4'" onmouseout="this.style.background='transparent'">👤 Mi
               Perfil</button>
+            <button *ngIf="usuarioLogueado?.rol !== 'admin'" (click)="irAHistorialCitas()"
+              style="width: 100%; text-align: left; padding: 12px 20px; border: none; background: transparent; cursor: pointer; color: #333; font-size: 0.9em; font-weight: 600; border-bottom: 1px solid #eee; transition: background 0.2s;"
+              onmouseover="this.style.background='#f4f4f4'" onmouseout="this.style.background='transparent'">📋 Mis
+              Citas</button>
             <button (click)="cerrarSesion()"
               style="width: 100%; text-align: left; padding: 12px 20px; border: none; background: transparent; cursor: pointer; color: #0044ff; font-size: 0.9em; font-weight: 700; transition: background 0.2s;"
               onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='transparent'">🚪 Cerrar
@@ -169,7 +173,11 @@
 
             </div>
             <div
-              style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+              style="display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; flex-wrap: wrap;">
+              <button *ngIf="usuarioLogueado && usuarioLogueado.rol !== 'admin'" (click)="irAAgendarCita(carro)"
+                style="background-color: transparent; color: #111111; border: 2px solid #111111; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;"
+                onmouseover="this.style.backgroundColor='#111111'; this.style.color='#ffffff'"
+                onmouseout="this.style.backgroundColor='transparent'; this.style.color='#111111'">Agendar Cita</button>
               <button (click)="cotizar(carro.modelo)"
                 style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s;">Solicitar
                 Cotización</button>
@@ -442,21 +450,22 @@
                 <h4 style="margin: 0; color: #111111; font-size: 1.2em; font-weight: 800;">{{ cita.cliente }}</h4>
                 <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9em;">Vehículo: <strong
                     style="color: #0044ff;">{{ cita.auto }}</strong></p>
-                <p style="margin: 5px 0 0 0; color: #777; font-size: 0.85em;">{{ cita.fecha }} a las {{ cita.hora }}</p>
+                <p style="margin: 5px 0 0 0; color: #777; font-size: 0.85em;">{{ cita.fecha }} a las {{ cita.horario || cita.hora }}</p>
               </div>
               <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
                 <span
-                  [ngStyle]="{'background-color': cita.estado === 'Pendiente' ? '#f59e0b' : (cita.estado === 'Confirmada' ? '#16a34a' : '#0044ff')}"
-                  style="color: #ffffff; padding: 4px 12px; font-size: 0.8em; font-weight: 800; text-transform: uppercase;">{{
-                  cita.estado }}</span>
+                  [ngStyle]="{'background-color': cita.estado === 'activa' ? '#f59e0b' : (cita.estado === 'completada' ? '#16a34a' : '#dc2626')}"
+                  style="color: #ffffff; padding: 4px 12px; font-size: 0.8em; font-weight: 800; text-transform: uppercase;">
+                  {{ cita.estado === 'activa' ? 'Pendiente' : (cita.estado === 'completada' ? 'Confirmada' : 'Cancelada') }}
+                </span>
                 <div style="display: flex; gap: 5px;">
                   <button (click)="verDetallesCita(cita)"
                     style="background: #111111; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">Ver</button>
-                  <button *ngIf="cita.estado === 'Pendiente'" (click)="cambiarEstadoCita(cita, 'Confirmada')"
+                  <button *ngIf="cita.estado === 'activa'" (click)="cambiarEstadoCita(cita, 'completada')"
                     style="background: #16a34a; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✔
                     Confirmar</button>
-                  <button *ngIf="cita.estado === 'Pendiente'" (click)="cambiarEstadoCita(cita, 'Cancelada')"
-                    style="background: #0044ff; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✖
+                  <button *ngIf="cita.estado === 'activa'" (click)="cambiarEstadoCita(cita, 'cancelada')"
+                    style="background: #dc2626; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✖
                     Declinar</button>
                 </div>
               </div>
@@ -805,5 +814,8 @@
       </form>
     </div>
   </div>
+
+  <!-- Componentes con rutas propias (agendar-cita, historial-citas) -->
+  <router-outlet></router-outlet>
 
 </div>
