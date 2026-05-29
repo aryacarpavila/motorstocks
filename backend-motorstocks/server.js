@@ -224,9 +224,21 @@ app.post('/api/orden', (req, res) => {
         }
     };
 
-    // Guardar la orden y marcar el auto como reservado
+    // Guardar la orden y marcar el auto como reservado en memoria
     ordenesDeCompra.push(nuevaOrden);
     autosReservados[claveAuto] = { idOrden, comprador: `${usuarioNombre} ${usuarioApellido}` };
+
+    // Persistir reservado: true en db.json
+    try {
+        const dbData = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        const idx = dbData.carros.findIndex(c => `${c.marca}-${c.modelo}` === claveAuto);
+        if (idx !== -1) {
+            dbData.carros[idx].reservado = true;
+        }
+        fs.writeFileSync(dbPath, JSON.stringify(dbData, null, 2), 'utf8');
+    } catch (e) {
+        console.error('Error actualizando db.json:', e);
+    }
 
     console.log(`🛒 [ORDEN #${idOrden}]: Vehículo "${auto.marca} ${auto.modelo}" reservado por ${usuarioNombre} ${usuarioApellido} (${usuarioCorreo})`);
 
@@ -317,9 +329,13 @@ app.get('/api/horarios-disponibles', (req, res) => {
 // RUTA: Verificar disponibilidad de vehículo (GET)
 // ==========================================
 app.get('/api/vehiculos/:id', (req, res) => {
-    const vehiculo = listaVehiculos.find(v => v.id === req.params.id);
-    if (!vehiculo) return res.status(404).json({ ok: false, mensaje: 'Vehículo no encontrado.' });
-    return res.status(200).json({ ok: true, vehiculo });
+    fs.readFile(dbPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos.' });
+        const db = JSON.parse(data);
+        const vehiculo = db.carros.find(v => String(v.id) === String(req.params.id));
+        if (!vehiculo) return res.status(404).json({ ok: false, mensaje: 'Vehículo no encontrado.' });
+        return res.status(200).json({ ok: true, vehiculo: { ...vehiculo, disponible: !vehiculo.reservado } });
+    });
 });
 
 // ==========================================
@@ -341,9 +357,15 @@ app.post('/api/citas', (req, res) => {
         return res.status(400).json({ ok: false, mensaje: 'No puedes agendar una cita para una fecha pasada.' });
     }
 
-    // Paso 3: verificar disponibilidad del vehículo
-    const vehiculo = listaVehiculos.find(v => v.id === idVehiculo);
-    if (!vehiculo || !vehiculo.disponible) {
+    // Paso 3: verificar disponibilidad del vehículo (desde db.json)
+    let db;
+    try {
+        db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+    } catch (e) {
+        return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos.' });
+    }
+    const vehiculo = db.carros.find(v => String(v.id) === String(idVehiculo));
+    if (!vehiculo || vehiculo.reservado) {
         return res.status(400).json({ ok: false, mensaje: 'Este vehículo ya no está disponible.' });
     }
 

@@ -57,7 +57,7 @@ export class AppComponent implements OnInit {
   }
 
   // Control de navegación entre pantallas
-  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' | 'perfil' | 'route' = 'catalogo';
+  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' | 'perfil' | 'route' | 'logout' = 'catalogo';
 
   // Estado de orden de compra
   mostrarModalOrden: boolean = false;
@@ -330,13 +330,21 @@ export class AppComponent implements OnInit {
   }
 
   cerrarSesion() {
+    const nombre = this.usuarioLogueado?.nombre || '';
     this.usuarioLogueado = null;
     localStorage.removeItem('usuarioLogueado');
     this.menuPerfilAbierto = false;
-    this.seccionActiva = 'catalogo';
-    this.router.navigate(['/']);
+    this.seccionActiva = 'logout';
+    this._nombreLogout = nombre;
     this.cdr.detectChanges();
+    setTimeout(() => {
+      this.seccionActiva = 'catalogo';
+      this.router.navigate(['/']);
+      this.cdr.detectChanges();
+    }, 2000);
   }
+
+  _nombreLogout = '';
 
   // ==========================================
   // FUNCIONES DE ADMINISTRADOR
@@ -594,10 +602,15 @@ export class AppComponent implements OnInit {
     }
   }
 
+  citaDetalle: any = null;
+
   verDetallesCita(cita: any) {
-    const tipoLabels: any = { inspeccion: 'Inspección', prueba_de_manejo: 'Prueba de Manejo' };
-    const tipo = cita.tipoCita ? tipoLabels[cita.tipoCita] : (cita.tipo || '');
-    const horario = cita.horario || cita.hora || '';
-    alert(`Cita con ${cita.cliente}\nVehículo: ${cita.auto}\nFecha: ${cita.fecha} a las ${horario}\nTipo: ${tipo}\nEstado: ${cita.estado}`);
+    this.citaDetalle = cita;
+    this.cdr.detectChanges();
+  }
+
+  cerrarDetalleCita() {
+    this.citaDetalle = null;
+    this.cdr.detectChanges();
   }
 }
