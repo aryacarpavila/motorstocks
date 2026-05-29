@@ -2,7 +2,7 @@ import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { CitaService } from './services/cita.service';
 
 @Component({
   selector: 'app-root',
@@ -12,28 +12,28 @@ import { filter } from 'rxjs/operators';
   styleUrl: './app.css'
 })
 export class AppComponent implements OnInit {
-  constructor(private cdr: ChangeDetectorRef, private router: Router) {
+  constructor(private cdr: ChangeDetectorRef, private router: Router, private citaService: CitaService) {
     // Escuchar cambios de ruta para mostrar/ocultar contenido principal
-    this.router.events.pipe(
-      filter((e): e is NavigationEnd => e instanceof NavigationEnd)
-    ).subscribe((e: NavigationEnd) => {
-      const url = e.urlAfterRedirects;
-      if (url === '/' || url === '') {
-        const pendingSection = localStorage.getItem('pendingSection');
-        if (pendingSection) {
-          localStorage.removeItem('pendingSection');
-          this.seccionActiva = pendingSection as any;
-          if (pendingSection === 'admin') {
-            this.cargarUsuarios();
-            this.cargarCitas();
+    this.router.events.subscribe((e) => {
+      if (e instanceof NavigationEnd) {
+        const url = e.urlAfterRedirects;
+        if (url === '/' || url === '') {
+          const pendingSection = localStorage.getItem('pendingSection');
+          if (pendingSection) {
+            localStorage.removeItem('pendingSection');
+            this.seccionActiva = pendingSection as any;
+            if (pendingSection === 'admin') {
+              this.cargarUsuarios();
+              this.cargarCitas();
+            }
+          } else if (this.seccionActiva === 'route') {
+            this.seccionActiva = 'catalogo';
           }
-        } else if (this.seccionActiva === 'route') {
-          this.seccionActiva = 'catalogo';
+        } else {
+          this.seccionActiva = 'route';
         }
-      } else {
-        this.seccionActiva = 'route';
+        this.cdr.detectChanges();
       }
-      this.cdr.detectChanges();
     });
   }
 
@@ -201,8 +201,8 @@ export class AppComponent implements OnInit {
       this.cambiarSeccion('login');
       return;
     }
-    sessionStorage.setItem('vehiculoParaCita', JSON.stringify(carro));
-    this.router.navigate(['/agendar-cita', carro.id], { state: { vehiculo: carro } });
+    this.citaService.vehiculoSeleccionado = carro;
+    this.router.navigate(['/agendar-cita', carro.id]);
   }
 
   // Navegar al historial de citas
@@ -346,6 +346,7 @@ export class AppComponent implements OnInit {
     localStorage.removeItem('usuarioLogueado');
     this.menuPerfilAbierto = false;
     this.seccionActiva = 'catalogo';
+    this.router.navigate(['/']);
     this.cdr.detectChanges();
   }
 
@@ -430,8 +431,9 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    // Añadimos el auto al principio de la lista
-    this.listaCarros.unshift({ ...this.nuevoAuto });
+    // Añadimos el auto al principio de la lista (con id único y disponible por defecto)
+    const nuevoId = 'v' + Date.now();
+    this.listaCarros.unshift({ id: nuevoId, disponible: true, ...this.nuevoAuto });
     
     // Limpiamos el formulario
     this.nuevoAuto = {

@@ -1,12 +1,32 @@
-<div style="font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; min-height: 100vh; padding: 60px 20px; box-sizing: border-box;">
+<div style="font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 40px 20px; box-sizing: border-box;">
   <div style="max-width: 580px; margin: 0 auto;">
 
-    <!-- Mensajes de redireccion (auth / disponibilidad / duplicado) -->
-    <div *ngIf="mensajeError && !listoParaMostrar"
-      style="background-color: #ffffff; padding: 50px 40px; text-align: center; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+    <!-- Verificando disponibilidad (chequeo inicial) -->
+    <div *ngIf="verificando"
+      style="background-color: #ffffff; padding: 50px 40px; text-align: center; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-radius: 10px;">
+      <div style="font-size: 2.5em; margin-bottom: 15px; animation: spin 1s linear infinite; display: inline-block;">⏳</div>
+      <p style="font-size: 1em; font-weight: 700; color: #555; margin: 0;">Verificando disponibilidad...</p>
+    </div>
+
+    <!-- Error con opciones (cita duplicada / no disponible / sin auth) -->
+    <div *ngIf="!verificando && mensajeError && !listoParaMostrar"
+      style="background-color: #ffffff; padding: 50px 40px; text-align: center; border: 1px solid #ddd; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-radius: 10px;">
       <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
-      <p style="font-size: 1.1em; font-weight: 700; color: #dc2626; margin: 0 0 10px 0;">{{ mensajeError }}</p>
-      <p style="color: #777; font-size: 0.9em;">Redirigiendo...</p>
+      <p style="font-size: 1.1em; font-weight: 700; color: #dc2626; margin: 0 0 25px 0;">{{ mensajeError }}</p>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button (click)="cancelar()"
+          style="background-color: transparent; color: #111111; border: 2px solid #111111; padding: 12px 24px; font-weight: 700; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+          onmouseover="this.style.backgroundColor='#111111'; this.style.color='#ffffff'"
+          onmouseout="this.style.backgroundColor='transparent'; this.style.color='#111111'">
+          🏠 Ir al Catálogo
+        </button>
+        <button (click)="irAHistorial()"
+          style="background-color: #0044ff; color: #ffffff; border: none; padding: 12px 24px; font-weight: 800; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+          onmouseover="this.style.backgroundColor='#0033cc'"
+          onmouseout="this.style.backgroundColor='#0044ff'">
+          🔄 Reprogramar Cita
+        </button>
+      </div>
     </div>
 
     <!-- Confirmación de éxito -->
@@ -85,6 +105,10 @@
           <input type="date" [(ngModel)]="citaForm.fecha" name="citaFecha" [min]="fechaMinima"
             (change)="onFechaChange()"
             style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box; border-radius: 6px; font-size: 1em;">
+          <span *ngIf="fechaDisplay"
+            style="display: inline-block; margin-top: 6px; font-size: 0.85em; color: #0044ff; font-weight: 700;">
+            📅 {{ fechaDisplay }}
+          </span>
         </div>
 
         <!-- Horarios disponibles -->
@@ -94,11 +118,17 @@
             Horario Disponible
           </label>
 
-          <div *ngIf="cargandoHorarios" style="color: #777; font-size: 0.9em; padding: 10px 0;">
-            Consultando horarios disponibles...
+          <div *ngIf="cargandoHorarios" style="display: flex; align-items: center; gap: 10px; padding: 10px 0;">
+            <div class="spinner" style="width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #0044ff; border-radius: 50%; flex-shrink: 0;"></div>
+            <span style="color: #777; font-size: 0.9em;">Verificando disponibilidad...</span>
           </div>
 
-          <div *ngIf="!cargandoHorarios && horariosDisponibles.length === 0"
+          <div *ngIf="!cargandoHorarios && mensajeFecha"
+            style="background-color: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626; padding: 12px 16px; font-size: 0.9em; font-weight: 600; border-radius: 4px;">
+            ⚠️ {{ mensajeFecha }}
+          </div>
+
+          <div *ngIf="!cargandoHorarios && horariosBuscados && horariosDisponibles.length === 0 && !mensajeFecha"
             style="background-color: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626; padding: 12px 16px; font-size: 0.9em; font-weight: 600; border-radius: 4px;">
             ⚠️ No hay horarios disponibles para esta fecha. Selecciona otra fecha.
           </div>

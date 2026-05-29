@@ -4,6 +4,9 @@ import { Injectable } from '@angular/core';
 export class CitaService {
   private apiUrl = 'http://localhost:3000/api';
 
+  // Vehículo compartido entre app.ts y AgendarCitaComponent
+  vehiculoSeleccionado: any = null;
+
   // Obtener todas las citas de un usuario
   async getCitasByUsuario(idUsuario: string | number): Promise<any[]> {
     try {
@@ -34,6 +37,30 @@ export class CitaService {
     }
   }
 
+  // Verificar que un vehículo existe y está disponible en el catálogo (dependencia HU5)
+  async getVehiculo(idVehiculo: string): Promise<{ ok: boolean; vehiculo?: any; mensaje?: string }> {
+    try {
+      const res = await fetch(`${this.apiUrl}/vehiculos/${idVehiculo}`);
+      return await res.json();
+    } catch {
+      return { ok: false, mensaje: 'Error de conexión con el servidor.' };
+    }
+  }
+
+  // Reprogramar una cita existente
+  async reprogramarCita(idCita: string, fecha: string, horario: string): Promise<{ ok: boolean; mensaje: string }> {
+    try {
+      const res = await fetch(`${this.apiUrl}/citas/${idCita}/reprogramar`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fecha, horario })
+      });
+      return await res.json();
+    } catch {
+      return { ok: false, mensaje: 'Error de conexión con el servidor.' };
+    }
+  }
+
   // Registrar una nueva cita
   async registrarCita(cita: {
     idUsuario: string | number;
@@ -43,6 +70,7 @@ export class CitaService {
     horario: string;
     cliente: string;
     auto: string;
+    imagen: string;
   }): Promise<{ ok: boolean; mensaje: string; cita?: any }> {
     try {
       const res = await fetch(`${this.apiUrl}/citas`, {

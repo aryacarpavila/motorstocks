@@ -5,8 +5,8 @@
   <nav
     style="background-color: #111111; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
     <div style="display: flex; align-items: center; gap: 25px;">
-      <span
-        style="font-size: 1.8em; font-weight: 900; letter-spacing: -1px; color: #ffffff; text-transform: uppercase;">
+      <span (click)="cambiarSeccion('catalogo')"
+        style="font-size: 1.8em; font-weight: 900; letter-spacing: -1px; color: #ffffff; text-transform: uppercase; cursor: pointer;">
         Motor<span style="color: #0044ff;">Stocks</span>
       </span>
 
@@ -572,7 +572,7 @@
     </div>
   </div>
 
-</div>
+  <!-- Componentes con rutas propias (agendar-cita, historial-citas) -->
+  <router-outlet></router-outlet>
 
-<!-- Componentes con rutas propias (agendar-cita, historial-citas) -->
-<router-outlet></router-outlet>
+</div>
