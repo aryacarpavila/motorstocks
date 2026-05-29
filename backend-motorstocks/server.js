@@ -1,5 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+
+const dbPath = path.join(__dirname, 'db.json');
 
 const app = express();
 const PORT = 3000; // El backend correrá en el puerto 3000
@@ -234,14 +238,26 @@ app.post('/api/orden', (req, res) => {
 });
 
 // ==========================================
-// RUTA 5: Ver todas las órdenes (GET) - Solo Admin
+// RUTA: Obtener Carros (GET)
+// ==========================================
+app.get('/api/carros', (req, res) => {
+    fs.readFile(dbPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos' });
+        const db = JSON.parse(data);
+        // Devolver el arreglo de carros directamente para compatibilidad con el frontend actual
+        return res.status(200).json(db.carros);
+    });
+});
+
+// ==========================================
+// RUTA: Ver todas las órdenes (GET) - Solo Admin
 // ==========================================
 app.get('/api/ordenes', (req, res) => {
     return res.status(200).json({ ok: true, ordenes: ordenesDeCompra });
 });
 
 // ==========================================
-// RUTA 6: Consultar estado de reserva de un auto (GET)
+// RUTA: Consultar estado de reserva de un auto (GET)
 // ==========================================
 app.get('/api/auto/estado', (req, res) => {
     const { marca, modelo } = req.query;
@@ -254,7 +270,7 @@ app.get('/api/auto/estado', (req, res) => {
 });
 
 // ==========================================
-// RUTA 7: Ver historial de compras de un cliente (GET)
+// RUTA: Ver historial de compras de un cliente (GET)
 // ==========================================
 app.get('/api/ordenes/cliente/:usuarioId', (req, res) => {
     const usuarioId = parseInt(req.params.usuarioId);
@@ -268,14 +284,14 @@ app.get('/api/ordenes/cliente/:usuarioId', (req, res) => {
 });
 
 // ==========================================
-// RUTA 8: Obtener todas las citas (GET - admin)
+// RUTA: Obtener todas las citas (GET - admin)
 // ==========================================
 app.get('/api/citas', (req, res) => {
     return res.status(200).json({ ok: true, citas: listaCitas });
 });
 
 // ==========================================
-// RUTA 9: Citas por usuario (GET)
+// RUTA: Citas por usuario (GET)
 // ==========================================
 app.get('/api/citas/usuario/:idUsuario', (req, res) => {
     const citas = listaCitas.filter(c => String(c.idUsuario) === String(req.params.idUsuario));
@@ -283,7 +299,7 @@ app.get('/api/citas/usuario/:idUsuario', (req, res) => {
 });
 
 // ==========================================
-// RUTA 10: Horarios disponibles (GET)
+// RUTA: Horarios disponibles (GET)
 // ==========================================
 app.get('/api/horarios-disponibles', (req, res) => {
     const { idVehiculo, fecha } = req.query;
@@ -298,7 +314,7 @@ app.get('/api/horarios-disponibles', (req, res) => {
 });
 
 // ==========================================
-// RUTA 11: Verificar disponibilidad de vehículo (GET)
+// RUTA: Verificar disponibilidad de vehículo (GET)
 // ==========================================
 app.get('/api/vehiculos/:id', (req, res) => {
     const vehiculo = listaVehiculos.find(v => v.id === req.params.id);
@@ -307,7 +323,7 @@ app.get('/api/vehiculos/:id', (req, res) => {
 });
 
 // ==========================================
-// RUTA 12: Registrar nueva cita (POST)
+// RUTA: Registrar nueva cita (POST)
 // ==========================================
 app.post('/api/citas', (req, res) => {
     const { idUsuario, idVehiculo, tipoCita, fecha, horario, cliente, auto, imagen } = req.body;
@@ -385,7 +401,7 @@ app.post('/api/citas', (req, res) => {
 });
 
 // ==========================================
-// RUTA 13: Actualizar estado de cita (PATCH)
+// RUTA: Actualizar estado de cita (PATCH)
 // ==========================================
 app.patch('/api/citas/:id', (req, res) => {
     const { estado } = req.body;
@@ -407,7 +423,7 @@ app.patch('/api/citas/:id', (req, res) => {
 });
 
 // ==========================================
-// RUTA 14: Reprogramar cita (PATCH)
+// RUTA: Reprogramar cita (PATCH)
 // ==========================================
 app.patch('/api/citas/:id/reprogramar', (req, res) => {
     const { fecha, horario } = req.body;
@@ -467,6 +483,36 @@ app.patch('/api/citas/:id/reprogramar', (req, res) => {
     return res.status(200).json({ ok: true, mensaje: 'Cita reprogramada exitosamente.', cita });
 });
 
+// ==========================================
+// RUTA: Registrar Carro (POST)
+// ==========================================
+app.post('/api/carros', (req, res) => {
+    const nuevoCarro = req.body;
+    fs.readFile(dbPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos' });
+        
+        const db = JSON.parse(data);
+        
+        // Validar VIN único
+        if (nuevoCarro.vin) {
+            const existeVin = db.carros.find(carro => carro.vin && carro.vin.toString().toLowerCase() === nuevoCarro.vin.toString().toLowerCase());
+            if (existeVin) {
+                return res.status(400).json({ ok: false, mensaje: 'El número de VIN ya está registrado en otro vehículo.' });
+            }
+        }
+
+        if (!nuevoCarro.id) {
+            nuevoCarro.id = Date.now().toString(); // Asignar un ID único
+        }
+        db.carros.push(nuevoCarro);
+        
+        fs.writeFile(dbPath, JSON.stringify(db, null, 2), (err) => {
+            if (err) return res.status(500).json({ ok: false, mensaje: 'Error al guardar en la base de datos' });
+            return res.status(201).json(nuevoCarro);
+        });
+    });
+});
+
 // ENCENDER EL SERVIDOR
 app.listen(PORT, () => {
     console.log(`\n🚀 Servidor Backend de MotorStocks listo y escuchando en: http://localhost:${PORT}`);
@@ -474,5 +520,6 @@ app.listen(PORT, () => {
     console.log(`👉 Ruta para login:        POST http://localhost:${PORT}/api/login`);
     console.log(`👉 Ruta para usuarios:     GET  http://localhost:${PORT}/api/usuarios`);
     console.log(`👉 Ruta para orden:        POST http://localhost:${PORT}/api/orden`);
-    console.log(`👉 Ruta para ver órdenes:  GET  http://localhost:${PORT}/api/ordenes\n`);
+    console.log(`👉 Ruta para ver órdenes:  GET  http://localhost:${PORT}/api/ordenes`);
+    console.log(`👉 Ruta para carros:       GET/POST http://localhost:${PORT}/api/carros\n`);
 });

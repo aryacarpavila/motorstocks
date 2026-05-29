@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CitaService } from './services/cita.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,7 @@ import { CitaService } from './services/cita.service';
   styleUrl: './app.css'
 })
 export class AppComponent implements OnInit {
-  constructor(private cdr: ChangeDetectorRef, private router: Router, private citaService: CitaService) {
+  constructor(private cdr: ChangeDetectorRef, private router: Router, private citaService: CitaService, private http: HttpClient) {
     // Escuchar cambios de ruta para mostrar/ocultar contenido principal
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) {
@@ -38,6 +39,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.cargarAutos();
     const savedUser = localStorage.getItem('usuarioLogueado');
     if (savedUser) {
       this.usuarioLogueado = JSON.parse(savedUser);
@@ -45,6 +47,13 @@ export class AppComponent implements OnInit {
         this.cambiarSeccion('admin');
       }
     }
+  }
+
+  cargarAutos() {
+    this.http.get<any[]>('http://localhost:3000/api/carros').subscribe(data => {
+      this.listaCarros = data.reverse();
+      this.cdr.detectChanges();
+    });
   }
 
   // Control de navegación entre pantallas
@@ -60,60 +69,7 @@ export class AppComponent implements OnInit {
   subtitulo = 'Tu próximo auto de altas prestaciones está aquí';
 
   // Datos extendidos de los autos para el Concesionario
-  listaCarros: any[] = [
-    {
-      id: 'v001', disponible: true,
-      marca: 'Tesla', modelo: 'Model S Plaid', precio: '$89,990', ano: '2025',
-      kilometraje: '0 km (Nuevo)',
-      imagen: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=600',
-      motor: 'Eléctrico (1,020 hp)',
-      transmision: 'Automática',
-      blindaje: 'Ninguno',
-      color: 'Blanco',
-      direccion: 'Electrica',
-      combustible: 'Electrico',
-      reservado: false
-    },
-    {
-      id: 'v002', disponible: true,
-      marca: 'Porsche', modelo: '911 Carrera GTS', precio: '$140,900', ano: '2024',
-      kilometraje: '4,200 km',
-      imagen: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600',
-      motor: '3.0L Twin-Turbo Flat-6',
-      transmision: 'PDK 8 vel.',
-      blindaje: 'Ninguno',
-      color: 'Negro',
-      direccion: 'Hidraulica',
-      combustible: 'Gasolina',
-      reservado: false
-    },
-    {
-      id: 'v003', disponible: true,
-      marca: 'BMW', modelo: 'M4 Competition', precio: '$78,100', ano: '2025',
-      kilometraje: '0 km (Nuevo)',
-      imagen: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600',
-      motor: '3.0L TwinPower Turbo',
-      transmision: 'Aut. M 8 vel.',
-      blindaje: 'Ninguno',
-      color: 'Blanco',
-      direccion: 'Hidraulica',
-      combustible: 'Gasolina',
-      reservado: false
-    },
-    {
-      id: 'v004', disponible: true,
-      marca: 'Audi', modelo: 'RS e-tron GT', precio: '$106,500', ano: '2023',
-      kilometraje: '12,500 km',
-      imagen: 'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=600',
-      motor: 'Eléctrico (637 hp)',
-      transmision: 'Automática',
-      blindaje: 'Ninguno',
-      color: 'Gris',
-      direccion: 'Hidraulica',
-      combustible: 'Gasolina',
-      reservado: false
-    }
-  ];
+  listaCarros: any[] = [];
   listaUsuarios: any[] = [];
   listaOrdenes: any[] = [];
   misOrdenes: any[] = [];
@@ -480,6 +436,15 @@ export class AppComponent implements OnInit {
     }
   }
 
+  formatearPrecioInput(valor: string) {
+    let numerico = valor.replace(/\D/g, '');
+    if (numerico === '') {
+      this.nuevoAuto.precio = '';
+      return;
+    }
+    this.nuevoAuto.precio = '$' + parseInt(numerico, 10).toLocaleString('en-US');
+  }
+
   agregarAuto(evento: Event) {
     evento.preventDefault();
     
@@ -490,17 +455,39 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    // Añadimos el auto al principio de la lista (con id único, disponible por defecto y sin reserva)
-    const nuevoId = 'v' + Date.now();
-    this.listaCarros.unshift({ id: nuevoId, disponible: true, reservado: false, ...this.nuevoAuto });
-    
-    // Limpiamos el formulario
-    this.nuevoAuto = {
-      marca: '', modelo: '', precio: '', ano: '', kilometraje: '', imagen: '', motor: '', transmision: '', blindaje: '', color: '', direccion: '', combustible: '', vin: ''
-    };
-    alert('¡Auto agregado exitosamente al catálogo!');
-    this.mostrarModalRegistroAuto = false;
-    this.cdr.detectChanges();
+    // Validación de precio positivo
+    const precioNumerico = parseFloat(auto.precio.replace(/[^0-9.-]+/g, ""));
+    if (isNaN(precioNumerico) || precioNumerico <= 0) {
+      alert('Por favor, ingresa un precio válido y mayor a 0.');
+      return;
+    }
+
+    // Validación de año (entre 1900 y el año actual + 1)
+    const anoNumerico = parseInt(auto.ano, 10);
+    const anoMaximo = new Date().getFullYear() + 1;
+    if (isNaN(anoNumerico) || anoNumerico < 1900 || anoNumerico > anoMaximo) {
+      alert(`Por favor, ingresa un año válido entre 1900 y ${anoMaximo}.`);
+      return;
+    }
+
+    // Añadimos el auto a la base de datos JSON
+    this.http.post('http://localhost:3000/api/carros', { ...this.nuevoAuto, reservado: false }).subscribe(() => {
+      this.cargarAutos();
+      
+      // Limpiamos el formulario
+      this.nuevoAuto = {
+        marca: '', modelo: '', precio: '', ano: '', kilometraje: '', imagen: '', motor: '', transmision: '', blindaje: '', color: '', direccion: '', combustible: '', vin: ''
+      };
+      alert('¡Auto agregado exitosamente a la base de datos!');
+      this.mostrarModalRegistroAuto = false;
+      this.cdr.detectChanges();
+    }, (error: any) => {
+      if (error.error && error.error.mensaje) {
+        alert(error.error.mensaje);
+      } else {
+        alert('Error al conectar con la base de datos JSON.');
+      }
+    });
   }
 
   // ==========================================
