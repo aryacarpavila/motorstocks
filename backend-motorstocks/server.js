@@ -240,6 +240,21 @@ app.get('/api/auto/estado', (req, res) => {
     return res.status(200).json({ ok: true, reservado: false });
 });
 
+// ==========================================
+// RUTA 7: Ver historial de compras de un cliente (GET)
+// ==========================================
+app.get('/api/ordenes/cliente/:usuarioId', (req, res) => {
+    const usuarioId = parseInt(req.params.usuarioId);
+    
+    if (isNaN(usuarioId)) {
+         return res.status(400).json({ ok: false, mensaje: 'ID de usuario inválido.' });
+    }
+
+    const misOrdenes = ordenesDeCompra.filter(orden => orden.comprador.id === usuarioId);
+    return res.status(200).json({ ok: true, ordenes: misOrdenes });
+});
+
+
 // ENCENDER EL SERVIDOR
 app.listen(PORT, () => {
     console.log(`\n🚀 Servidor Backend de MotorStocks listo y escuchando en: http://localhost:${PORT}`);

@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
   }
 
   // Control de navegación entre pantallas
-  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' = 'catalogo';
+  seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' | 'perfil' = 'catalogo';
 
   // Estado de orden de compra
   mostrarModalOrden: boolean = false;
@@ -99,6 +99,7 @@ export class AppComponent implements OnInit {
   ];
   listaUsuarios: any[] = [];
   listaOrdenes: any[] = [];
+  misOrdenes: any[] = [];
   listaCitas: any[] = [
     { cliente: 'Juan Pérez', auto: 'Tesla Model S', fecha: '2026-06-01', hora: '10:00 AM', estado: 'Pendiente' },
     { cliente: 'María Gómez', auto: 'Porsche 911', fecha: '2026-06-05', hora: '02:30 PM', estado: 'Confirmada' }
@@ -165,12 +166,14 @@ export class AppComponent implements OnInit {
   };
 
   // Cambiar entre vistas
-  cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin') {
+  cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin' | 'perfil') {
     this.seccionActiva = seccion;
     this.menuPerfilAbierto = false;
     if (seccion === 'admin') {
       this.cargarUsuarios();
       this.cargarOrdenes();
+    } else if (seccion === 'perfil') {
+      this.cargarMisOrdenes();
     }
   }
 
@@ -342,6 +345,20 @@ export class AppComponent implements OnInit {
     }
   }
 
+  async cargarMisOrdenes() {
+    if (!this.usuarioLogueado) return;
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/ordenes/cliente/${this.usuarioLogueado.id}`);
+      const data = await respuesta.json();
+      if (data.ok) {
+        this.misOrdenes = data.ordenes;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Error cargando mis órdenes', error);
+    }
+  }
+
   agregarAuto(evento: Event) {
     evento.preventDefault();
     
@@ -370,7 +387,7 @@ export class AppComponent implements OnInit {
   iniciarCompra(carro: any) {
     if (!this.usuarioLogueado) {
       // Si no está logueado, lo redirigimos al login
-      this.carroModal = null;
+      this.autoConEspecificacionesVisibles = null;
       this.cambiarSeccion('login');
       return;
     }
@@ -381,7 +398,7 @@ export class AppComponent implements OnInit {
     this.errorOrden = null;
     this.ordenConfirmada = null;
     this.mostrarModalOrden = true;
-    this.carroModal = null; // Cerramos el modal de especificaciones
+    this.autoConEspecificacionesVisibles = null; // Cerramos el modal de especificaciones
     this.cdr.detectChanges();
   }
 
