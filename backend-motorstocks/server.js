@@ -21,6 +21,19 @@ const usuariosRegistrados = [
     }
 ];
 
+// Base de datos de órdenes de compra en memoria
+const ordenesDeCompra = [];
+
+// ==========================================
+// FUNCIÓN: Generar ID de Orden único
+// Formato: MS-AÑO-XXXXX (ej: MS-2026-00042)
+// ==========================================
+function generarIdOrden() {
+    const anio = new Date().getFullYear();
+    const numero = String(ordenesDeCompra.length + 1).padStart(5, '0');
+    return `MS-${anio}-${numero}`;
+}
+
 // ==========================================
 // RUTA 1: Recibir registros desde Angular (POST)
 // ==========================================
@@ -133,7 +146,6 @@ app.post('/api/login', (req, res) => {
 // RUTA 3: Ver todos los usuarios (GET)
 // ==========================================
 app.get('/api/usuarios', (req, res) => {
-    // Retornamos todos los usuarios sin las contraseñas
     const usuariosSeguros = usuariosRegistrados.map(u => {
         const { password, ...resto } = u;
         return resto;
@@ -141,9 +153,99 @@ app.get('/api/usuarios', (req, res) => {
     return res.status(200).json({ ok: true, usuarios: usuariosSeguros });
 });
 
+// ==========================================
+// RUTA 4: Generar Orden de Compra (POST)
+// ==========================================
+// Base de datos de autos reservados en memoria (índice por modelo)
+const autosReservados = {};
+
+app.post('/api/orden', (req, res) => {
+    const { usuarioId, usuarioNombre, usuarioApellido, usuarioCorreo, auto } = req.body;
+
+    // Validación: todos los datos necesarios deben estar presentes
+    if (!usuarioId && usuarioId !== 0) {
+        return res.status(401).json({ ok: false, mensaje: 'Debes iniciar sesión para generar una orden de compra.' });
+    }
+    if (!auto || !auto.marca || !auto.modelo || !auto.precio) {
+        return res.status(400).json({ ok: false, mensaje: 'Los datos del vehículo son inválidos o están incompletos.' });
+    }
+
+    // Validación: verificar que el auto no esté ya reservado
+    const claveAuto = `${auto.marca}-${auto.modelo}`;
+    if (autosReservados[claveAuto]) {
+        return res.status(409).json({
+            ok: false,
+            mensaje: `El vehículo ${auto.marca} ${auto.modelo} ya se encuentra reservado. Por favor selecciona otro vehículo.`
+        });
+    }
+
+    // Generar ID de orden único
+    const idOrden = generarIdOrden();
+    const fechaOrden = new Date();
+
+    // Crear la orden
+    const nuevaOrden = {
+        idOrden,
+        fechaOrden,
+        estado: 'Reservado',
+        comprador: {
+            id: usuarioId,
+            nombre: usuarioNombre,
+            apellido: usuarioApellido,
+            correo: usuarioCorreo
+        },
+        vehiculo: {
+            marca: auto.marca,
+            modelo: auto.modelo,
+            ano: auto.ano,
+            precio: auto.precio,
+            color: auto.color || 'N/A',
+            motor: auto.motor || 'N/A',
+            transmision: auto.transmision || 'N/A',
+            combustible: auto.combustible || 'N/A',
+            vin: auto.vin || 'N/A'
+        }
+    };
+
+    // Guardar la orden y marcar el auto como reservado
+    ordenesDeCompra.push(nuevaOrden);
+    autosReservados[claveAuto] = { idOrden, comprador: `${usuarioNombre} ${usuarioApellido}` };
+
+    console.log(`🛒 [ORDEN #${idOrden}]: Vehículo "${auto.marca} ${auto.modelo}" reservado por ${usuarioNombre} ${usuarioApellido} (${usuarioCorreo})`);
+
+    return res.status(201).json({
+        ok: true,
+        mensaje: `¡Orden de compra generada con éxito!`,
+        orden: nuevaOrden
+    });
+});
+
+// ==========================================
+// RUTA 5: Ver todas las órdenes (GET) - Solo Admin
+// ==========================================
+app.get('/api/ordenes', (req, res) => {
+    return res.status(200).json({ ok: true, ordenes: ordenesDeCompra });
+});
+
+// ==========================================
+// RUTA 6: Consultar estado de reserva de un auto (GET)
+// ==========================================
+app.get('/api/auto/estado', (req, res) => {
+    const { marca, modelo } = req.query;
+    const claveAuto = `${marca}-${modelo}`;
+    const reserva = autosReservados[claveAuto];
+    if (reserva) {
+        return res.status(200).json({ ok: true, reservado: true, detalle: reserva });
+    }
+    return res.status(200).json({ ok: true, reservado: false });
+});
+
 // ENCENDER EL SERVIDOR
 app.listen(PORT, () => {
     console.log(`\n🚀 Servidor Backend de MotorStocks listo y escuchando en: http://localhost:${PORT}`);
-    console.log(`👉 Ruta para registrar: POST http://localhost:${PORT}/api/registro`);
-    console.log(`👉 Ruta para ver usuarios: GET http://localhost:${PORT}/api/usuarios\n`);
+    console.log(`👉 Ruta para registrar:    POST http://localhost:${PORT}/api/registro`);
+    console.log(`👉 Ruta para login:        POST http://localhost:${PORT}/api/login`);
+    console.log(`👉 Ruta para usuarios:     GET  http://localhost:${PORT}/api/usuarios`);
+    console.log(`👉 Ruta para orden:        POST http://localhost:${PORT}/api/orden`);
+    console.log(`👉 Ruta para ver órdenes:  GET  http://localhost:${PORT}/api/ordenes\n`);
 });

@@ -117,6 +117,11 @@
             <span
               style="position: absolute; top: 15px; left: 15px; background-color: #0044ff; color: #ffffff; padding: 6px 14px; font-size: 0.85em; font-weight: 700; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,64,255,0.3);">{{
               carro.ano }}</span>
+            <!-- Badge de RESERVADO -->
+            <div *ngIf="carro.reservado"
+              style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;">
+              <span style="background-color: #dc2626; color: #fff; font-size: 1.1em; font-weight: 900; padding: 10px 28px; border-radius: 6px; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 4px 15px rgba(220,38,38,0.5);">🔒 Reservado</span>
+            </div>
           </div>
 
           <div
@@ -170,6 +175,13 @@
                 Cotización</button>
               <button (click)="verDetalles(carro.modelo)"
                 style="background-color: #0044ff; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,68,255,0.2);">Especificaciones</button>
+              <button (click)="iniciarCompra(carro)"
+                [disabled]="carro.reservado"
+                [style.background-color]="carro.reservado ? '#9ca3af' : '#16a34a'"
+                [style.cursor]="carro.reservado ? 'not-allowed' : 'pointer'"
+                style="color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; box-shadow: 0 4px 12px rgba(22,163,74,0.2); transition: background 0.2s;">
+                {{ carro.reservado ? '🔒 Reservado' : '🛒 Comprar' }}
+              </button>
             </div>
           </div>
 
@@ -415,6 +427,169 @@
           </div>
         </div>
 
+        <!-- Órdenes de Compra -->
+        <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd; border-top: 4px solid #16a34a;">
+          <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">🛒 Órdenes de Compra</h3>
+          <div *ngIf="listaOrdenes.length === 0" style="text-align: center; color: #888; padding: 30px 0; font-size: 0.95em;">
+            No hay órdenes de compra registradas aún.
+          </div>
+          <div style="overflow-x: auto;" *ngIf="listaOrdenes.length > 0">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+              <thead>
+                <tr style="background-color: #111111; color: #ffffff; text-align: left; text-transform: uppercase;">
+                  <th style="padding: 12px;">ID Orden</th>
+                  <th style="padding: 12px;">Vehículo</th>
+                  <th style="padding: 12px;">Comprador</th>
+                  <th style="padding: 12px;">Precio</th>
+                  <th style="padding: 12px;">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let orden of listaOrdenes" style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 12px; font-family: 'Courier New', monospace; font-weight: 700; color: #0044ff; font-size: 0.95em;">{{ orden.idOrden }}</td>
+                  <td style="padding: 12px; font-weight: 700;">{{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }}</td>
+                  <td style="padding: 12px; color: #555;">{{ orden.comprador.nombre }} {{ orden.comprador.apellido }}</td>
+                  <td style="padding: 12px; font-weight: 700; color: #0044ff;">{{ orden.vehiculo.precio }}</td>
+                  <td style="padding: 12px;">
+                    <span style="background: #16a34a; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.8em; font-weight: 700; text-transform: uppercase;">{{ orden.estado }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- MODAL: ORDEN DE COMPRA                       -->
+  <!-- ============================================ -->
+  <div *ngIf="mostrarModalOrden"
+    style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.75); display: flex; justify-content: center; align-items: center; z-index: 3000; padding: 20px; box-sizing: border-box;">
+
+    <!-- RECIBO DE CONFIRMACIÓN (se muestra tras éxito) -->
+    <div *ngIf="ordenConfirmada"
+      style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 520px; padding: 40px; box-shadow: 0 25px 60px rgba(0,0,0,0.4); text-align: center; position: relative;">
+
+      <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #16a34a, #22c55e); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; margin: 0 auto 20px auto; box-shadow: 0 8px 25px rgba(22,163,74,0.4);">
+        ✅
+      </div>
+
+      <h2 style="margin: 0 0 5px 0; font-size: 1.8em; font-weight: 900; color: #111111; text-transform: uppercase;">¡Reserva Confirmada!</h2>
+      <p style="color: #555; margin: 0 0 25px 0; font-size: 0.95em;">Tu orden de compra ha sido registrada exitosamente en el sistema.</p>
+
+      <!-- ID de Orden -->
+      <div style="background: linear-gradient(135deg, #0c1e5a, #0044ff); border-radius: 12px; padding: 20px 25px; margin-bottom: 25px;">
+        <span style="display: block; color: rgba(255,255,255,0.7); font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">Número de Orden</span>
+        <span style="display: block; color: #ffffff; font-size: 2em; font-weight: 900; letter-spacing: 3px; font-family: 'Courier New', monospace;">{{ ordenConfirmada.idOrden }}</span>
+      </div>
+
+      <!-- Resumen del vehículo -->
+      <div style="background: #f8fafc; border-radius: 10px; padding: 18px; text-align: left; margin-bottom: 25px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-weight: 900; font-size: 1.1em; color: #111111;">{{ ordenConfirmada.vehiculo.marca }} {{ ordenConfirmada.vehiculo.modelo }}</span>
+          <span style="font-weight: 800; color: #0044ff; font-size: 1.1em;">{{ ordenConfirmada.vehiculo.precio }}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85em; color: #555;">
+          <span>📅 Año: <strong>{{ ordenConfirmada.vehiculo.ano }}</strong></span>
+          <span>🎨 Color: <strong>{{ ordenConfirmada.vehiculo.color }}</strong></span>
+          <span>⛽ Combustible: <strong>{{ ordenConfirmada.vehiculo.combustible }}</strong></span>
+          <span>⚙️ Motor: <strong>{{ ordenConfirmada.vehiculo.motor }}</strong></span>
+        </div>
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 0.85em; color: #555;">
+          👤 Comprador: <strong>{{ ordenConfirmada.comprador.nombre }} {{ ordenConfirmada.comprador.apellido }}</strong>
+        </div>
+      </div>
+
+      <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px 15px; font-size: 0.85em; color: #92400e; margin-bottom: 25px; text-align: left;">
+        ⚠️ Un asesor de MotorStocks se pondrá en contacto contigo para coordinar el proceso de pago y entrega del vehículo en <strong>Caracas, Venezuela</strong>.
+      </div>
+
+      <button (click)="cerrarRecibo()"
+        style="width: 100%; background-color: #111111; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; border-radius: 10px; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='#111111'">
+        Volver al Catálogo
+      </button>
+    </div>
+
+    <!-- FORMULARIO DE CONFIRMACIÓN DE ORDEN (antes de procesar) -->
+    <div *ngIf="!ordenConfirmada && carroSeleccionadoParaCompra"
+      style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.4); position: relative;">
+
+      <button (click)="cerrarModalOrden()"
+        style="position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; font-size: 1.2em; cursor: pointer; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; color: #333; z-index: 10;">✖</button>
+
+      <!-- Cabecera del Modal -->
+      <div style="background: linear-gradient(135deg, #0c1e5a 0%, #0044ff 100%); padding: 30px 35px; border-radius: 20px 20px 0 0;">
+        <span style="display: block; color: rgba(255,255,255,0.7); font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">🛒 Orden de Compra</span>
+        <h2 style="margin: 0; color: #ffffff; font-size: 1.8em; font-weight: 900;">{{ carroSeleccionadoParaCompra.marca }} {{ carroSeleccionadoParaCompra.modelo }}</h2>
+        <span style="color: rgba(255,255,255,0.9); font-size: 1.4em; font-weight: 800;">{{ carroSeleccionadoParaCompra.precio }}</span>
+      </div>
+
+      <div style="padding: 30px 35px;">
+
+        <!-- Resumen del vehículo -->
+        <h3 style="margin: 0 0 15px 0; font-size: 1em; color: #111; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Resumen del Vehículo</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px;">
+          <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.72em; color: #64748b; font-weight: 700; text-transform: uppercase;">Año</span>
+            <span style="font-weight: 700; color: #0f172a;">📅 {{ carroSeleccionadoParaCompra.ano }}</span>
+          </div>
+          <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.72em; color: #64748b; font-weight: 700; text-transform: uppercase;">Color</span>
+            <span style="font-weight: 700; color: #0f172a;">🎨 {{ carroSeleccionadoParaCompra.color }}</span>
+          </div>
+          <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.72em; color: #64748b; font-weight: 700; text-transform: uppercase;">Motor</span>
+            <span style="font-weight: 700; color: #0f172a;">⚙️ {{ carroSeleccionadoParaCompra.motor }}</span>
+          </div>
+          <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <span style="display: block; font-size: 0.72em; color: #64748b; font-weight: 700; text-transform: uppercase;">Combustible</span>
+            <span style="font-weight: 700; color: #0f172a;">⛽ {{ carroSeleccionadoParaCompra.combustible }}</span>
+          </div>
+          <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0; grid-column: span 2;">
+            <span style="display: block; font-size: 0.72em; color: #64748b; font-weight: 700; text-transform: uppercase;">Kilometraje</span>
+            <span style="font-weight: 700; color: #0f172a;">🛣️ {{ carroSeleccionadoParaCompra.kilometraje }}</span>
+          </div>
+        </div>
+
+        <!-- Datos del comprador -->
+        <h3 style="margin: 0 0 15px 0; font-size: 1em; color: #111; text-transform: uppercase; letter-spacing: 1px; font-weight: 800;">Datos del Comprador</h3>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-bottom: 25px;">
+          <div style="display: flex; gap: 15px; align-items: center;">
+            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #0044ff, #0033cc); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em; flex-shrink: 0;">👤</div>
+            <div>
+              <p style="margin: 0; font-weight: 800; color: #111; font-size: 1em;">{{ usuarioLogueado?.nombre }} {{ usuarioLogueado?.apellido }}</p>
+              <p style="margin: 4px 0 0 0; font-size: 0.85em; color: #555;">{{ usuarioLogueado?.correo }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aviso legal -->
+        <div style="background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; padding: 12px 16px; margin-bottom: 25px; font-size: 0.85em; color: #92400e; line-height: 1.5;">
+          ⚠️ Al confirmar, el vehículo quedará <strong>reservado exclusivamente a tu nombre</strong>. Un asesor te contactará para coordinar el pago y entrega en <strong>Caracas, Venezuela</strong>.
+        </div>
+
+        <!-- Error -->
+        <div *ngIf="errorOrden"
+          style="background: #fef2f2; border-left: 4px solid #dc2626; color: #dc2626; padding: 12px 16px; border-radius: 6px; font-size: 0.9em; font-weight: 600; margin-bottom: 20px;">
+          ⚠️ {{ errorOrden }}
+        </div>
+
+        <!-- Botones de acción -->
+        <div style="display: flex; gap: 12px;">
+          <button (click)="cerrarModalOrden()"
+            style="flex: 1; background: transparent; color: #555; border: 2px solid #ddd; padding: 14px; font-weight: 700; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 10px; transition: 0.2s;">
+            Cancelar
+          </button>
+          <button (click)="generarOrden()" [disabled]="procesandoOrden"
+            [style.background-color]="procesandoOrden ? '#9ca3af' : '#16a34a'"
+            style="flex: 2; color: #ffffff; border: none; padding: 14px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; border-radius: 10px; transition: 0.2s; box-shadow: 0 4px 15px rgba(22,163,74,0.3);">
+            {{ procesandoOrden ? '⏳ Procesando...' : '✅ Confirmar y Reservar' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -434,10 +609,13 @@
         <div style="width: 100%; height: 280px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
           <img [src]="carroModal.imagen" [alt]="carroModal.modelo" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
-        <button
-          style="width: 100%; background-color: #111111; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1.1em; cursor: pointer; border-radius: 8px; transition: 0.2s; margin-top: auto;"
-          onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='#111111'">
-          COMPRAR
+        <button (click)="iniciarCompra(carroModal)"
+          [disabled]="carroModal.reservado"
+          [style.background-color]="carroModal.reservado ? '#9ca3af' : '#111111'"
+          [style.cursor]="carroModal.reservado ? 'not-allowed' : 'pointer'"
+          style="width: 100%; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1.1em; border-radius: 8px; transition: 0.2s; margin-top: auto;"
+          onmouseover="if(!this.disabled) this.style.backgroundColor='#333'" onmouseout="if(!this.disabled) this.style.backgroundColor='#111111'">
+          {{ carroModal.reservado ? '🔒 VEHÍCULO RESERVADO' : '🛒 GENERAR ORDEN DE COMPRA' }}
         </button>
       </div>
 

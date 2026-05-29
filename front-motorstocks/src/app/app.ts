@@ -24,11 +24,18 @@ export class AppComponent implements OnInit {
 
   // Control de navegación entre pantallas
   seccionActiva: 'catalogo' | 'registro' | 'login' | 'usuarios' | 'admin' = 'catalogo';
+
+  // Estado de orden de compra
+  mostrarModalOrden: boolean = false;
+  carroSeleccionadoParaCompra: any = null;
+  procesandoOrden: boolean = false;
+  errorOrden: string | null = null;
+  ordenConfirmada: any = null;
   tituloCatalogo = 'Concesionario Premium MotorStocks';
   subtitulo = 'Tu próximo auto de altas prestaciones está aquí';
 
   // Datos extendidos de los autos para el Concesionario
-  listaCarros = [
+  listaCarros: any[] = [
     {
       marca: 'Tesla',
       modelo: 'Model S Plaid',
@@ -41,7 +48,8 @@ export class AppComponent implements OnInit {
       blindaje: 'Ninguno',
       color: 'Blanco',
       direccion: 'Electrica',
-      combustible: 'Electrico'  	
+      combustible: 'Electrico',
+      reservado: false
     },
     {
       marca: 'Porsche',
@@ -55,7 +63,8 @@ export class AppComponent implements OnInit {
       blindaje: 'Ninguno',
       color: 'Negro',
       direccion: 'Hidraulica',
-      combustible: 'Gasolina'   
+      combustible: 'Gasolina',
+      reservado: false
     },
     {
       marca: 'BMW',
@@ -69,7 +78,8 @@ export class AppComponent implements OnInit {
       blindaje: 'Ninguno',
       color: 'Blanco',
       direccion: 'Hidraulica',
-      combustible: 'Gasolina'   
+      combustible: 'Gasolina',
+      reservado: false
     },
     {
       marca: 'Audi',
@@ -83,10 +93,12 @@ export class AppComponent implements OnInit {
       blindaje: 'Ninguno',
       color: 'Gris',
       direccion: 'Hidraulica',
-      combustible: 'Gasolina'   
+      combustible: 'Gasolina',
+      reservado: false
     }
   ];
   listaUsuarios: any[] = [];
+  listaOrdenes: any[] = [];
   listaCitas: any[] = [
     { cliente: 'Juan Pérez', auto: 'Tesla Model S', fecha: '2026-06-01', hora: '10:00 AM', estado: 'Pendiente' },
     { cliente: 'María Gómez', auto: 'Porsche 911', fecha: '2026-06-05', hora: '02:30 PM', estado: 'Confirmada' }
@@ -155,9 +167,10 @@ export class AppComponent implements OnInit {
   // Cambiar entre vistas
   cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin') {
     this.seccionActiva = seccion;
-    this.menuPerfilAbierto = false; // Cierra el menú al navegar
+    this.menuPerfilAbierto = false;
     if (seccion === 'admin') {
       this.cargarUsuarios();
+      this.cargarOrdenes();
     }
   }
 
@@ -316,6 +329,19 @@ export class AppComponent implements OnInit {
     }
   }
 
+  async cargarOrdenes() {
+    try {
+      const respuesta = await fetch('http://localhost:3000/api/ordenes');
+      const data = await respuesta.json();
+      if (data.ok) {
+        this.listaOrdenes = data.ordenes;
+        this.cdr.detectChanges();
+      }
+    } catch (error) {
+      console.error('Error cargando órdenes', error);
+    }
+  }
+
   agregarAuto(evento: Event) {
     evento.preventDefault();
     
@@ -326,8 +352,8 @@ export class AppComponent implements OnInit {
       return;
     }
 
-    // Añadimos el auto al principio de la lista
-    this.listaCarros.unshift({ ...this.nuevoAuto });
+    // Añadimos el auto al principio de la lista (con estado de reserva en false)
+    this.listaCarros.unshift({ ...this.nuevoAuto, reservado: false });
     
     // Limpiamos el formulario
     this.nuevoAuto = {
@@ -336,6 +362,88 @@ export class AppComponent implements OnInit {
     alert('¡Auto agregado exitosamente al catálogo!');
     this.mostrarModalRegistroAuto = false;
     this.cdr.detectChanges();
+  }
+
+  // ==========================================
+  // LÓGICA DE ORDEN DE COMPRA
+  // ==========================================
+  iniciarCompra(carro: any) {
+    if (!this.usuarioLogueado) {
+      // Si no está logueado, lo redirigimos al login
+      this.carroModal = null;
+      this.cambiarSeccion('login');
+      return;
+    }
+    if (carro.reservado) {
+      return; // No hacer nada si ya está reservado
+    }
+    this.carroSeleccionadoParaCompra = carro;
+    this.errorOrden = null;
+    this.ordenConfirmada = null;
+    this.mostrarModalOrden = true;
+    this.carroModal = null; // Cerramos el modal de especificaciones
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalOrden() {
+    this.mostrarModalOrden = false;
+    this.carroSeleccionadoParaCompra = null;
+    this.errorOrden = null;
+    this.ordenConfirmada = null;
+    this.cdr.detectChanges();
+  }
+
+  cerrarRecibo() {
+    this.ordenConfirmada = null;
+    this.mostrarModalOrden = false;
+    this.carroSeleccionadoParaCompra = null;
+    this.cdr.detectChanges();
+  }
+
+  async generarOrden() {
+    if (!this.usuarioLogueado || !this.carroSeleccionadoParaCompra) return;
+
+    this.procesandoOrden = true;
+    this.errorOrden = null;
+    this.cdr.detectChanges();
+
+    try {
+      const payload = {
+        usuarioId: this.usuarioLogueado.id,
+        usuarioNombre: this.usuarioLogueado.nombre,
+        usuarioApellido: this.usuarioLogueado.apellido,
+        usuarioCorreo: this.usuarioLogueado.correo,
+        auto: this.carroSeleccionadoParaCompra
+      };
+
+      const respuesta = await fetch('http://localhost:3000/api/orden', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await respuesta.json();
+
+      if (data.ok) {
+        // Marcar el auto como reservado localmente en la lista
+        const carroEnLista = this.listaCarros.find(
+          c => c.marca === this.carroSeleccionadoParaCompra.marca &&
+               c.modelo === this.carroSeleccionadoParaCompra.modelo
+        );
+        if (carroEnLista) {
+          carroEnLista.reservado = true;
+        }
+        // Guardar la orden para mostrar el recibo
+        this.ordenConfirmada = data.orden;
+      } else {
+        this.errorOrden = data.mensaje;
+      }
+    } catch (error) {
+      this.errorOrden = 'Error de conexión con el servidor. No se pudo generar la orden.';
+    } finally {
+      this.procesandoOrden = false;
+      this.cdr.detectChanges();
+    }
   }
 
   mostrarProximamente() {
