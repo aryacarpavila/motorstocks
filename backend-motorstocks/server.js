@@ -1,5 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
+const { randomUUID } = require('crypto');
 
 const app = express();
 const PORT = 3000; // El backend correrá en el puerto 3000
@@ -7,6 +10,30 @@ const PORT = 3000; // El backend correrá en el puerto 3000
 // CONFIGURACIONES (Middlewares)
 app.use(cors());          // Permite que tu app de Angular (puerto 4200) le haga peticiones al backend
 app.use(express.json());  // Permite que el servidor entienda datos en formato JSON que envíe el cliente
+
+// ---------------------------------------------------
+// Helpers para reserva persistente en JSON
+// ---------------------------------------------------
+function leerReservas() {
+  const file = path.join(__dirname, 'reservas.json');
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (_) { return []; }
+}
+function guardarReservas(data) {
+  const file = path.join(__dirname, 'reservas.json');
+  fs.writeFileSync(file, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// ---------------------------------------------------
+// Ruta: Reservar coche (genera ID y persiste en reservas.json)
+// ---------------------------------------------------
+app.post('/api/reservar', (req, res) => {
+  const id = randomUUID();
+  const registro = { id, fecha: new Date().toISOString() };
+  const reservas = leerReservas();
+  reservas.push(registro);
+  guardarReservas(reservas);
+  res.status(201).json({ mensaje: 'Reserva creada', reserva: registro });
+});
 
 // Base de datos simulada en memoria (Array)
 const usuariosRegistrados = [
