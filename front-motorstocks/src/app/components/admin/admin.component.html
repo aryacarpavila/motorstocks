@@ -1,0 +1,199 @@
+<div style="max-width: 1300px; margin: 40px auto; padding: 0 20px;">
+
+  <div style="margin-bottom: 30px;">
+    <h2 style="font-size: 2.5em; font-weight: 900; color: #111111; text-transform: uppercase; margin: 0;">Panel de
+      Control</h2>
+    <p style="color: #0044ff; font-weight: 700; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">
+      Acceso Restringido</p>
+  </div>
+
+  <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+
+    <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 20px;">
+      <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #111111;">
+        <span
+          style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Total
+          Usuarios</span>
+        <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaUsuarios.length }}</span>
+      </div>
+      <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #0044ff;">
+        <span
+          style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Autos
+          Disponibles</span>
+        <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaCarros.length }}</span>
+      </div>
+      <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #111111;">
+        <span
+          style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Citas
+          Pendientes</span>
+        <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaCitas.length }}</span>
+      </div>
+    </div>
+
+    <div style="flex: 2 1 600px; display: flex; flex-direction: column; gap: 30px;">
+
+      <!-- Botón Agregar Auto -->
+      <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd; text-align: center;">
+        <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">Ingresar Vehículo</h3>
+        <button (click)="abrirRegistroAuto()"
+          style="width: 100%; max-width: 400px; background-color: #0044ff; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s; border-radius: 8px;"
+          onmouseover="this.style.backgroundColor='#0033cc'"
+          onmouseout="this.style.backgroundColor='#0044ff'">Registrar Vehículo</button>
+      </div>
+
+      <!-- Gestión de Citas -->
+      <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd;">
+        <h3
+          style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">
+          Gestión de Citas</h3>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <div *ngFor="let cita of listaCitas"
+            style="padding: 20px; border: 1px solid #eee; background-color: #f9f9f9; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+            <div>
+              <h4 style="margin: 0; color: #111111; font-size: 1.2em; font-weight: 800;">{{ cita.cliente }}</h4>
+              <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9em;">Vehículo: <strong
+                  style="color: #0044ff;">{{ cita.auto }}</strong></p>
+              <p style="margin: 5px 0 0 0; color: #777; font-size: 0.85em;">{{ cita.fecha }} a las {{ cita.horario || cita.hora }}</p>
+            </div>
+            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+              <span
+                [ngStyle]="{'background-color': cita.estado === 'activa' ? '#f59e0b' : (cita.estado === 'completada' ? '#16a34a' : '#dc2626')}"
+                style="color: #ffffff; padding: 4px 12px; font-size: 0.8em; font-weight: 800; text-transform: uppercase;">
+                {{ cita.estado === 'activa' ? 'Pendiente' : (cita.estado === 'completada' ? 'Confirmada' : 'Cancelada') }}
+              </span>
+              <div style="display: flex; gap: 5px;">
+                <button (click)="verDetallesCita(cita)"
+                  style="background: #111111; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">Ver</button>
+                <button *ngIf="cita.estado === 'activa'" (click)="cambiarEstadoCita(cita, 'completada')"
+                  style="background: #16a34a; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✔
+                  Confirmar</button>
+                <button *ngIf="cita.estado === 'activa'" (click)="cambiarEstadoCita(cita, 'cancelada')"
+                  style="background: #dc2626; color: #fff; border: none; padding: 6px 12px; font-size: 0.8em; font-weight: 700; cursor: pointer; text-transform: uppercase;">✖
+                  Declinar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de Usuarios -->
+      <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd;">
+        <h3
+          style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">
+          Usuarios en Sistema</h3>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+            <thead>
+              <tr style="background-color: #111111; color: #ffffff; text-align: left; text-transform: uppercase;">
+                <th style="padding: 12px;">ID</th>
+                <th style="padding: 12px;">Nombre</th>
+                <th style="padding: 12px;">Correo</th>
+                <th style="padding: 12px;">Rol</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of listaUsuarios" style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px; font-weight: 600;">{{ user.id }}</td>
+                <td style="padding: 12px; font-weight: 700;">{{ user.nombre }} {{ user.apellido }}</td>
+                <td style="padding: 12px; color: #555;">{{ user.correo }}</td>
+                <td style="padding: 12px;"><span [style.color]="user.rol === 'admin' ? '#0044ff' : '#111111'"
+                    style="font-weight: 800; text-transform: uppercase;">{{ user.rol }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Órdenes de Compra -->
+      <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd; border-top: 4px solid #16a34a;">
+        <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">🛒 Órdenes de Compra</h3>
+        <div *ngIf="listaOrdenes.length === 0" style="text-align: center; color: #888; padding: 30px 0; font-size: 0.95em;">
+          No hay órdenes de compra registradas aún.
+        </div>
+        <div style="overflow-x: auto;" *ngIf="listaOrdenes.length > 0">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+            <thead>
+              <tr style="background-color: #111111; color: #ffffff; text-align: left; text-transform: uppercase;">
+                <th style="padding: 12px;">ID Orden</th>
+                <th style="padding: 12px;">Vehículo</th>
+                <th style="padding: 12px;">Comprador</th>
+                <th style="padding: 12px;">Precio</th>
+                <th style="padding: 12px;">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let orden of listaOrdenes" style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px; font-family: 'Courier New', monospace; font-weight: 700; color: #0044ff; font-size: 0.95em;">{{ orden.idOrden }}</td>
+                <td style="padding: 12px; font-weight: 700;">{{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }}</td>
+                <td style="padding: 12px; color: #555;">{{ orden.comprador.nombre }} {{ orden.comprador.apellido }}</td>
+                <td style="padding: 12px; font-weight: 700; color: #0044ff;">{{ orden.vehiculo.precio }}</td>
+                <td style="padding: 12px;">
+                  <span style="background: #16a34a; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.8em; font-weight: 700; text-transform: uppercase;">{{ orden.estado }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: DETALLE DE CITA (admin) -->
+<div *ngIf="citaDetalle"
+  style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 4000; padding: 20px; box-sizing: border-box;"
+  (click)="cerrarDetalleCita()">
+
+  <div (click)="$event.stopPropagation()"
+    style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 460px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; position: relative;">
+
+    <div style="background: linear-gradient(135deg, #0c1e5a, #0044ff); padding: 28px 30px;">
+      <span style="display: block; color: rgba(255,255,255,0.7); font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">📋 Detalle de Cita</span>
+      <h2 style="margin: 0; color: #ffffff; font-size: 1.5em; font-weight: 900;">{{ citaDetalle.cliente }}</h2>
+    </div>
+
+    <div style="padding: 28px 30px; display: flex; flex-direction: column; gap: 14px;">
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span
+          [ngStyle]="{'background-color': citaDetalle.estado === 'activa' ? '#f59e0b' : (citaDetalle.estado === 'completada' ? '#16a34a' : '#dc2626')}"
+          style="color: #fff; padding: 5px 14px; font-size: 0.8em; font-weight: 800; text-transform: uppercase; border-radius: 20px;">
+          {{ citaDetalle.estado === 'activa' ? 'Pendiente' : (citaDetalle.estado === 'completada' ? 'Confirmada' : 'Cancelada') }}
+        </span>
+        <span style="color: #777; font-size: 0.85em;">
+          {{ citaDetalle.tipoCita === 'inspeccion' ? 'Inspección' : citaDetalle.tipoCita === 'prueba_de_manejo' ? 'Prueba de Manejo' : (citaDetalle.tipo || '') }}
+        </span>
+      </div>
+
+      <div style="background: #f8fafc; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #e2e8f0;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.82em; color: #64748b; font-weight: 700; text-transform: uppercase;">Vehículo</span>
+          <span style="font-weight: 800; color: #0044ff;">{{ citaDetalle.auto }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.82em; color: #64748b; font-weight: 700; text-transform: uppercase;">Fecha</span>
+          <span style="font-weight: 700; color: #111;">📅 {{ citaDetalle.fecha }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.82em; color: #64748b; font-weight: 700; text-transform: uppercase;">Hora</span>
+          <span style="font-weight: 700; color: #111;">🕐 {{ citaDetalle.horario || citaDetalle.hora }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.82em; color: #64748b; font-weight: 700; text-transform: uppercase;">ID Cita</span>
+          <span style="font-weight: 700; color: #111; font-family: 'Courier New', monospace;">#{{ citaDetalle.id }}</span>
+        </div>
+      </div>
+
+      <button (click)="cerrarDetalleCita()"
+        style="width: 100%; background-color: #111111; color: #ffffff; border: none; padding: 14px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; margin-top: 4px; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='#111111'">
+        Cerrar
+      </button>
+
+    </div>
+  </div>
+</div>

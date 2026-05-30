@@ -1,0 +1,40 @@
+<div style="max-width: 450px; margin: 100px auto; padding: 0 20px;">
+  <div
+    style="background-color: #ffffff; padding: 40px; border: 1px solid #ddd; box-shadow: 0 10px 40px rgba(0,0,0,0.05);">
+    <h2
+      style="margin-top: 0; text-align: center; font-size: 2em; color: #111111; font-weight: 900; text-transform: uppercase;">
+      Iniciar Sesión</h2>
+
+    <form (submit)="iniciarSesion($event)"
+      style="display: flex; flex-direction: column; gap: 20px; margin-top: 30px;">
+      <div>
+        <label
+          style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Correo
+          Electrónico</label>
+        <input type="email" [(ngModel)]="loginData.correo" name="loginCorreo" required
+          style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+      </div>
+
+      <div>
+        <label
+          style="display: block; margin-bottom: 5px; font-size: 0.85em; font-weight: 700; color: #111111; text-transform: uppercase;">Contraseña</label>
+        <input type="password" [(ngModel)]="loginData.password" name="loginPassword" required
+          style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box;">
+      </div>
+
+      <div *ngIf="errorLogin"
+        style="background-color: #eff6ff; border-left: 4px solid #0044ff; color: #0044ff; padding: 15px; font-size: 0.9em; font-weight: 600;">
+        {{ errorLogin }}
+      </div>
+
+      <button type="submit"
+        style="width: 100%; background-color: #0044ff; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#0033cc'"
+        onmouseout="this.style.backgroundColor='#0044ff'">Ingresar</button>
+    </form>
+    <div style="text-align: center; margin-top: 20px;">
+      <a href="javascript:void(0)" (click)="irARegistro.emit()"
+        style="color: #111111; font-size: 0.9em; font-weight: 600;">¿No tienes cuenta? Regístrate</a>
+    </div>
+  </div>
+</div>

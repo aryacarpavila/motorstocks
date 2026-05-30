@@ -1,4 +1,24 @@
 {
+  "usuarios": [
+    {
+      "id": 0,
+      "nombre": "Administrador",
+      "apellido": "Principal",
+      "correo": "admin@motorstocks.com",
+      "password": "motorstocks_123",
+      "rol": "admin"
+    },
+    {
+      "id": 2,
+      "nombre": "Santiago Alejandro",
+      "apellido": "Perez Rodríguez",
+      "correo": "saperezr1.24@est.ucab.edu.ve",
+      "password": "Santiago2006%",
+      "fechaNacimiento": "2006-08-01",
+      "fechaRegistro": "2026-05-29T23:37:49.326Z",
+      "rol": "cliente"
+    }
+  ],
   "carros": [
     {
       "id": "1",
@@ -14,7 +34,8 @@
       "color": "Blanco",
       "direccion": "Electrica",
       "combustible": "Electrico",
-      "vin": "TESLA123"
+      "vin": "TESLA123",
+      "reservado": false
     },
     {
       "id": "2",
@@ -30,7 +51,8 @@
       "color": "Negro",
       "direccion": "Hidraulica",
       "combustible": "Gasolina",
-      "vin": "PORSCHE456"
+      "vin": "PORSCHE456",
+      "reservado": false
     },
     {
       "id": "3",
@@ -46,7 +68,8 @@
       "color": "Blanco",
       "direccion": "Hidraulica",
       "combustible": "Gasolina",
-      "vin": "BMW789"
+      "vin": "BMW789",
+      "reservado": false
     },
     {
       "id": "4",
@@ -62,11 +85,13 @@
       "color": "Gris",
       "direccion": "Hidraulica",
       "combustible": "Gasolina",
-      "vin": "AUDI012"
+      "vin": "AUDI012",
+      "reservado": false
     },
     {
-      "marca": "renault",
-      "modelo": "clio",
+      "id": "caMnrtx",
+      "marca": "Renault",
+      "modelo": "Clio",
       "precio": "$10,000",
       "ano": "2004",
       "kilometraje": "",
@@ -74,13 +99,14 @@
       "motor": "",
       "transmision": "",
       "blindaje": "",
-      "color": "plateado",
+      "color": "Plateado",
       "direccion": "",
       "combustible": "",
       "vin": "1",
-      "id": "caMnrtx"
+      "reservado": false
     },
     {
+      "id": "1780008144229",
       "marca": "Toyota",
       "modelo": "Corolla",
       "precio": "$20,000",
@@ -94,7 +120,7 @@
       "direccion": "",
       "combustible": "",
       "vin": "2",
-      "id": "1780008144229"
+      "reservado": false
     }
   ]
 }
