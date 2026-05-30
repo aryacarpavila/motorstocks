@@ -38,9 +38,13 @@ export class CitaService {
   }
 
   // Verificar que un vehículo existe y está disponible en el catálogo (dependencia HU5)
-  async getVehiculo(idVehiculo: string): Promise<{ ok: boolean; vehiculo?: any; mensaje?: string }> {
+  // Si se pasa idUsuario, el backend permite disponibilidad para el dueño de la reserva
+  async getVehiculo(idVehiculo: string, idUsuario?: string | number): Promise<{ ok: boolean; vehiculo?: any; mensaje?: string }> {
     try {
-      const res = await fetch(`${this.apiUrl}/vehiculos/${idVehiculo}`);
+      const url = idUsuario
+        ? `${this.apiUrl}/vehiculos/${idVehiculo}?idUsuario=${idUsuario}`
+        : `${this.apiUrl}/vehiculos/${idVehiculo}`;
+      const res = await fetch(url);
       return await res.json();
     } catch {
       return { ok: false, mensaje: 'Error de conexión con el servidor.' };

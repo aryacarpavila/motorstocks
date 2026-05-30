@@ -74,7 +74,8 @@ export class AgendarCitaComponent implements OnInit {
     }
 
     // Verificar disponibilidad del vehículo contra el backend (dependencia HU5)
-    const verificacionVehiculo = await this.citaService.getVehiculo(this.idVehiculo);
+    // Se pasa el idUsuario para que el backend permita al dueño de la reserva agendar cita
+    const verificacionVehiculo = await this.citaService.getVehiculo(this.idVehiculo, this.usuario.id);
     if (!verificacionVehiculo.ok || !verificacionVehiculo.vehiculo) {
       await spinnerMinimo;
       this.verificando = false;

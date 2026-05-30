@@ -272,11 +272,18 @@
       ⚠️ Un asesor de MotorStocks se pondrá en contacto contigo para coordinar el proceso de pago y entrega del vehículo en <strong>Caracas, Venezuela</strong>.
     </div>
 
-    <button (click)="cerrarRecibo()"
-      style="width: 100%; background-color: #111111; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; border-radius: 10px; transition: 0.2s;"
-      onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='#111111'">
-      Volver al Catálogo
-    </button>
+    <div style="display: flex; gap: 12px; flex-direction: column;">
+      <button (click)="irAAgendarCitaPostCompra()"
+        style="width: 100%; background-color: #1a3a6b; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; border-radius: 10px; transition: 0.2s; box-shadow: 0 4px 15px rgba(26,58,107,0.3);"
+        onmouseover="this.style.backgroundColor='#122848'" onmouseout="this.style.backgroundColor='#1a3a6b'">
+        📅 Agendar Cita para el Vehículo
+      </button>
+      <button (click)="cerrarRecibo()"
+        style="width: 100%; background-color: transparent; color: #555; border: 2px solid #ddd; padding: 13px; font-weight: 700; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 10px; transition: 0.2s;"
+        onmouseover="this.style.borderColor='#111'; this.style.color='#111'" onmouseout="this.style.borderColor='#ddd'; this.style.color='#555'">
+        Volver al Catálogo
+      </button>
+    </div>
   </div>
 
   <!-- FORMULARIO DE CONFIRMACIÓN DE ORDEN -->

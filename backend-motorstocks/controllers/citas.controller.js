@@ -46,8 +46,20 @@ function crearCita(req, res) {
         return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos.' });
     }
     const vehiculo = db.carros.find(v => String(v.id) === String(idVehiculo));
-    if (!vehiculo || vehiculo.reservado) {
-        return res.status(400).json({ ok: false, mensaje: 'Este vehículo ya no está disponible.' });
+    if (!vehiculo) {
+        return res.status(400).json({ ok: false, mensaje: 'Vehículo no encontrado.' });
+    }
+    if (vehiculo.reservado) {
+        // Permitir cita si el solicitante es el comprador de este vehículo
+        const tieneOrden = (db.ordenes || []).some(o => {
+            if (String(o.comprador.id) !== String(idUsuario)) return false;
+            if (o.estado !== 'Reservado') return false;
+            if (o.vehiculo.idVehiculo) return String(o.vehiculo.idVehiculo) === String(idVehiculo);
+            return o.vehiculo.vin && o.vehiculo.vin === vehiculo.vin;
+        });
+        if (!tieneOrden) {
+            return res.status(400).json({ ok: false, mensaje: 'Este vehículo ya no está disponible.' });
+        }
     }
 
     // Verificar cita duplicada activa para el mismo vehículo

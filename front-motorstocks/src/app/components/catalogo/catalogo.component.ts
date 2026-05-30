@@ -165,6 +165,16 @@ export class CatalogoComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
+  irAAgendarCitaPostCompra() {
+    const carro = this.carroSeleccionadoParaCompra;
+    this.mostrarModalOrden = false;
+    this.ordenConfirmada = null;
+    this.carroSeleccionadoParaCompra = null;
+    this.citaService.vehiculoSeleccionado = carro;
+    this.cdr.detectChanges();
+    this.router.navigate(['/agendar-cita', carro.id]);
+  }
+
   async generarOrden() {
     if (!this.usuarioLogueado || !this.carroSeleccionadoParaCompra) return;
 

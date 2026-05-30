@@ -37,6 +37,7 @@ function crearOrden(req, res) {
             correo: usuarioCorreo
         },
         vehiculo: {
+            idVehiculo: auto.id || null,
             marca: auto.marca,
             modelo: auto.modelo,
             ano: auto.ano,
