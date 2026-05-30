@@ -27,6 +27,7 @@ export class AdminComponent implements OnInit {
   toastAutoRegistrado: string | null = null;
   private toastTimer: any = null;
   kilometrajeRaw: string = '';
+  errorPrecio: string = '';
   nuevoAuto = {
     marca: '',
     modelo: '',
@@ -168,12 +169,36 @@ export class AdminComponent implements OnInit {
   }
 
   formatearPrecioInput(valor: string) {
-    let numerico = valor.replace(/\D/g, '');
-    if (numerico === '') {
+    // Dejar solo dígitos y un punto decimal; rechazar letras, guiones, etc.
+    let limpio = valor.replace(/[^0-9.]/g, '');
+
+    // Permitir solo un punto decimal
+    const primerPunto = limpio.indexOf('.');
+    if (primerPunto !== -1) {
+      limpio = limpio.slice(0, primerPunto + 1) + limpio.slice(primerPunto + 1).replace(/\./g, '');
+    }
+
+    if (!limpio || limpio === '.') {
       this.nuevoAuto.precio = '';
+      this.errorPrecio = '';
       return;
     }
-    this.nuevoAuto.precio = '$' + parseInt(numerico, 10).toLocaleString('en-US');
+
+    const num = parseFloat(limpio);
+    this.errorPrecio = (isNaN(num) || num <= 0) ? 'El precio debe ser mayor a $0.' : '';
+
+    // Formatear la parte entera con separador de miles; conservar los decimales tal como se escriben
+    const [entera, decimal] = limpio.split('.');
+    const parteEntera = parseInt(entera || '0', 10);
+    const base = '$' + (isNaN(parteEntera) ? '0' : parteEntera.toLocaleString('en-US'));
+    this.nuevoAuto.precio = decimal !== undefined ? base + '.' + decimal : base;
+  }
+
+  onPrecioKeydown(event: KeyboardEvent) {
+    const permitidas = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+    if (permitidas.includes(event.key) || event.ctrlKey || event.metaKey) return;
+    if (!/^\d$/.test(event.key) && event.key !== '.') event.preventDefault();
   }
 
   onKilometrajeKeydown(event: KeyboardEvent) {
@@ -208,9 +233,11 @@ export class AdminComponent implements OnInit {
 
     const precioNumerico = parseFloat(auto.precio.replace(/[^0-9.-]+/g, ''));
     if (isNaN(precioNumerico) || precioNumerico <= 0) {
-      alert('Por favor, ingresa un precio válido y mayor a 0.');
+      this.errorPrecio = 'El precio debe ser mayor a $0.';
+      this.cdr.detectChanges();
       return;
     }
+    this.errorPrecio = '';
 
     const anoNumerico = parseInt(auto.ano, 10);
     const anoMaximo = new Date().getFullYear() + 1;
@@ -228,6 +255,7 @@ export class AdminComponent implements OnInit {
           motor: '', transmision: '', blindaje: '', color: '', tipo: '', combustible: '', vin: ''
         };
         this.kilometrajeRaw = '';
+        this.errorPrecio = '';
         this.vistaAdmin = 'panel';
         this.mostrarToastExito(nombreAuto);
         this.cdr.detectChanges();

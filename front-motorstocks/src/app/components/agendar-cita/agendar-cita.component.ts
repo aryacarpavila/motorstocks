@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CitaService } from '../services/cita.service';
+import { CitaService } from '../../services/cita.service';
 
 @Component({
   selector: 'app-agendar-cita',

@@ -1,36 +1,59 @@
-const fs = require('fs');
+const fs   = require('fs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '..', 'db.json');
+const dataDir = path.join(__dirname, '..', 'data');
 
-function leerDB() {
-    return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+const carrosPath   = path.join(dataDir, 'carros.json');
+const usuariosPath = path.join(dataDir, 'usuarios.json');
+const citasPath    = path.join(dataDir, 'citas.json');
+const ordenesPath  = path.join(dataDir, 'ordenes.json');
+const ventasPath   = path.join(dataDir, 'ventas.json');
+
+// ─── Helpers genéricos ───────────────────────────────────────────────────────
+function leerJSON(filePath) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+function guardarJSON(filePath, data) {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
 }
 
-function escribirDB(data) {
-    fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
+// ─── Usuarios ────────────────────────────────────────────────────────────────
+const usuariosRegistrados = leerJSON(usuariosPath);
+function guardarUsuarios() {
+    guardarJSON(usuariosPath, usuariosRegistrados);
 }
 
-// Cargar datos desde db.json al arrancar (persisten entre reinicios)
-const _db = leerDB();
-const usuariosRegistrados = _db.usuarios || [];
-const ordenesDeCompra = _db.ordenes || [];
+// ─── Órdenes ─────────────────────────────────────────────────────────────────
+const ordenesDeCompra = leerJSON(ordenesPath);
 
-// Reconstruir autosReservados desde las órdenes cargadas
+// Reconstruir mapa de autos reservados desde las órdenes cargadas
 const autosReservados = {};
 ordenesDeCompra.forEach(orden => {
     if (orden.estado === 'Reservado') {
         const clave = `${orden.vehiculo.marca}-${orden.vehiculo.modelo}`;
-        autosReservados[clave] = { idOrden: orden.idOrden, comprador: `${orden.comprador.nombre} ${orden.comprador.apellido}` };
+        autosReservados[clave] = {
+            idOrden:   orden.idOrden,
+            comprador: `${orden.comprador.nombre} ${orden.comprador.apellido}`
+        };
     }
 });
-const listaCitas = [];
-let citaIdCounter = 1;
 
+// ─── Citas (persistentes) ────────────────────────────────────────────────────
+const listaCitas = leerJSON(citasPath);
+let citaIdCounter = listaCitas.length > 0
+    ? Math.max(...listaCitas.map(c => parseInt(c.id) || 0)) + 1
+    : 1;
+
+function guardarCitas() {
+    guardarJSON(citasPath, listaCitas);
+}
+
+// ─── Constantes ──────────────────────────────────────────────────────────────
 const HORARIOS = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'];
 
+// ─── Generadores de ID ───────────────────────────────────────────────────────
 function generarIdOrden() {
-    const anio = new Date().getFullYear();
+    const anio   = new Date().getFullYear();
     const numero = String(ordenesDeCompra.length + 1).padStart(5, '0');
     return `MS-${anio}-${numero}`;
 }
@@ -39,23 +62,15 @@ function siguienteCitaId() {
     return String(citaIdCounter++);
 }
 
-// Guarda el array de usuarios actualizado en db.json
-function guardarUsuarios() {
-    const db = leerDB();
-    db.usuarios = usuariosRegistrados;
-    escribirDB(db);
-}
-
 module.exports = {
-    usuariosRegistrados,
-    ordenesDeCompra,
-    autosReservados,
-    listaCitas,
+    // Paths
+    carrosPath, usuariosPath, citasPath, ordenesPath, ventasPath,
+    // Arrays en memoria
+    usuariosRegistrados, ordenesDeCompra, autosReservados, listaCitas,
+    // Constantes
     HORARIOS,
-    dbPath,
-    leerDB,
-    escribirDB,
-    guardarUsuarios,
-    generarIdOrden,
-    siguienteCitaId
+    // Helpers
+    leerJSON, guardarJSON,
+    guardarUsuarios, guardarCitas,
+    generarIdOrden, siguienteCitaId
 };

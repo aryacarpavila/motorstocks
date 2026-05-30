@@ -1,4 +1,4 @@
-const { ordenesDeCompra, leerDB, escribirDB } = require('../models/db.model');
+const { ordenesDeCompra, carrosPath, ordenesPath, ventasPath, leerJSON, guardarJSON } = require('../models/db.model');
 
 function formalizarVenta(req, res) {
     const { idOrden, vendedor } = req.body;
@@ -7,63 +7,73 @@ function formalizarVenta(req, res) {
         return res.status(400).json({ ok: false, mensaje: 'Se requiere el ID de la orden.' });
     }
 
-    // Leer db.json y actualizar el carro a vendido
-    const db = leerDB();
+    let carros, ordenes, ventas;
+    try {
+        carros  = leerJSON(carrosPath);
+        ordenes = leerJSON(ordenesPath);
+        ventas  = leerJSON(ventasPath);
+    } catch {
+        return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos.' });
+    }
 
-    // Buscar la orden: primero en memoria, luego en db.json (sobrevive reinicios)
+    // Buscar la orden en memoria primero (más rápido), luego en archivo
     let orden = ordenesDeCompra.find(o => o.idOrden === idOrden);
-    if (!orden) {
-        orden = (db.ordenes || []).find(o => o.idOrden === idOrden);
-    }
-    if (!orden) {
-        return res.status(404).json({ ok: false, mensaje: 'Orden no encontrada.' });
-    }
+    if (!orden) orden = ordenes.find(o => o.idOrden === idOrden);
+    if (!orden) return res.status(404).json({ ok: false, mensaje: 'Orden no encontrada.' });
     if (orden.estado === 'Vendido') {
         return res.status(409).json({ ok: false, mensaje: 'Esta venta ya fue formalizada previamente.' });
     }
 
-    const carroIdx = db.carros.findIndex(c =>
+    // Marcar carro como vendido en carros.json
+    const carroIdx = carros.findIndex(c =>
         c.marca?.toLowerCase() === orden.vehiculo.marca?.toLowerCase() &&
         c.modelo?.toLowerCase() === orden.vehiculo.modelo?.toLowerCase()
     );
-
     if (carroIdx !== -1) {
-        db.carros[carroIdx].vendido = true;
-        db.carros[carroIdx].reservado = false;
+        carros[carroIdx].vendido   = true;
+        carros[carroIdx].reservado = false;
     }
 
-    // Generar el comprobante de venta
-    const totalVentas = (db.ventas || []).length;
+    // Generar comprobante de venta
     const venta = {
-        id: `VTA-${new Date().getFullYear()}-${String(totalVentas + 1).padStart(5, '0')}`,
+        id:         `VTA-${new Date().getFullYear()}-${String(ventas.length + 1).padStart(5, '0')}`,
         fechaVenta: new Date().toISOString(),
         idOrden,
-        vehiculo: { ...orden.vehiculo },
-        comprador: { ...orden.comprador },
-        vendedor: vendedor || 'Administrador Principal'
+        vehiculo:   { ...orden.vehiculo },
+        comprador:  { ...orden.comprador },
+        vendedor:   vendedor || 'Administrador Principal'
     };
+    ventas.push(venta);
 
-    if (!db.ventas) db.ventas = [];
-    db.ventas.push(venta);
+    // Actualizar estado de la orden en archivo
+    const ordenIdx = ordenes.findIndex(o => o.idOrden === idOrden);
+    if (ordenIdx !== -1) ordenes[ordenIdx].estado = 'Vendido';
 
-    // Actualizar estado de la orden en db.json
-    const ordenIdx = (db.ordenes || []).findIndex(o => o.idOrden === idOrden);
-    if (ordenIdx !== -1) db.ordenes[ordenIdx].estado = 'Vendido';
+    // Persistir los tres archivos
+    try {
+        guardarJSON(carrosPath,  carros);
+        guardarJSON(ordenesPath, ordenes);
+        guardarJSON(ventasPath,  ventas);
+    } catch {
+        return res.status(500).json({ ok: false, mensaje: 'Error al guardar en la base de datos.' });
+    }
 
-    escribirDB(db);
-
-    // Actualizar estado de la orden en memoria si existe
+    // Actualizar orden en memoria
     const ordenMemoria = ordenesDeCompra.find(o => o.idOrden === idOrden);
     if (ordenMemoria) ordenMemoria.estado = 'Vendido';
 
-    console.log(`✅ [VENTA #${venta.id}]: ${orden.vehiculo.marca} ${orden.vehiculo.modelo} formalizado. Comprador: ${orden.comprador.nombre} ${orden.comprador.apellido}`);
+    console.log(`✅ [VENTA #${venta.id}]: ${orden.vehiculo.marca} ${orden.vehiculo.modelo} — Comprador: ${orden.comprador.nombre} ${orden.comprador.apellido}`);
 
     return res.status(201).json({ ok: true, venta });
 }
 
 function getVentas(req, res) {
-    const db = leerDB();
-    return res.status(200).json({ ok: true, ventas: db.ventas || [] });
+    try {
+        const ventas = leerJSON(ventasPath);
+        return res.status(200).json({ ok: true, ventas });
+    } catch {
+        return res.status(200).json({ ok: true, ventas: [] });
+    }
 }
 
 function getVentasPorUsuario(req, res) {
@@ -71,9 +81,13 @@ function getVentasPorUsuario(req, res) {
     if (isNaN(usuarioId)) {
         return res.status(400).json({ ok: false, mensaje: 'ID de usuario inválido.' });
     }
-    const db = leerDB();
-    const misVentas = (db.ventas || []).filter(v => v.comprador.id === usuarioId);
-    return res.status(200).json({ ok: true, ventas: misVentas });
+    try {
+        const ventas   = leerJSON(ventasPath);
+        const misVentas = ventas.filter(v => v.comprador.id === usuarioId);
+        return res.status(200).json({ ok: true, ventas: misVentas });
+    } catch {
+        return res.status(200).json({ ok: true, ventas: [] });
+    }
 }
 
 module.exports = { formalizarVenta, getVentas, getVentasPorUsuario };

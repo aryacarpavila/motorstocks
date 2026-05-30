@@ -1,5 +1,4 @@
-const fs = require('fs');
-const { listaCitas, HORARIOS, dbPath, siguienteCitaId } = require('../models/db.model');
+const { listaCitas, HORARIOS, carrosPath, ordenesPath, siguienteCitaId, guardarCitas, leerJSON } = require('../models/db.model');
 
 function getCitas(req, res) {
     return res.status(200).json({ ok: true, citas: listaCitas });
@@ -25,33 +24,34 @@ function getHorariosDisponibles(req, res) {
 function crearCita(req, res) {
     const { idUsuario, idVehiculo, tipoCita, fecha, horario, cliente, auto, imagen } = req.body;
 
-    // Validar campos completos
     if (idUsuario == null || !idVehiculo || !tipoCita || !fecha || !horario) {
         return res.status(400).json({ ok: false, mensaje: 'Completa todos los campos para continuar.' });
     }
 
-    // Validar que la fecha no sea pasada (fecha en formato M/D/YYYY)
-    const [mes, dia, anio] = fecha.split('/').map(Number);
+    // Validar que la fecha no sea pasada (formato DD/MM/YYYY)
+    const [dia, mes, anio] = fecha.split('/').map(Number);
     const fechaCita = new Date(anio, mes - 1, dia);
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     if (fechaCita < hoy) {
         return res.status(400).json({ ok: false, mensaje: 'No puedes agendar una cita para una fecha pasada.' });
     }
 
-    // Verificar disponibilidad del vehículo (desde db.json)
-    let db;
+    let carros, ordenes;
     try {
-        db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-    } catch (e) {
+        carros  = leerJSON(carrosPath);
+        ordenes = leerJSON(ordenesPath);
+    } catch {
         return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos.' });
     }
-    const vehiculo = db.carros.find(v => String(v.id) === String(idVehiculo));
+
+    const vehiculo = carros.find(v => String(v.id) === String(idVehiculo));
     if (!vehiculo) {
         return res.status(400).json({ ok: false, mensaje: 'Vehículo no encontrado.' });
     }
+
     if (vehiculo.reservado) {
         // Permitir cita si el solicitante es el comprador de este vehículo
-        const tieneOrden = (db.ordenes || []).some(o => {
+        const tieneOrden = ordenes.some(o => {
             if (String(o.comprador.id) !== String(idUsuario)) return false;
             if (o.estado !== 'Reservado') return false;
             if (o.vehiculo.idVehiculo) return String(o.vehiculo.idVehiculo) === String(idVehiculo);
@@ -83,7 +83,7 @@ function crearCita(req, res) {
         return res.status(400).json({ ok: false, mensaje: 'Ya tienes una cita agendada a esa hora ese día. Elige un horario diferente.' });
     }
 
-    // Verificar que el horario siga disponible
+    // Verificar que el horario siga disponible para ese vehículo
     const horarioOcupado = listaCitas.find(c =>
         c.idVehiculo === idVehiculo &&
         c.fecha === fecha &&
@@ -95,22 +95,22 @@ function crearCita(req, res) {
     }
 
     const nuevaCita = {
-        id: siguienteCitaId(),
-        idUsuario: String(idUsuario),
+        id:            siguienteCitaId(),
+        idUsuario:     String(idUsuario),
         idVehiculo,
         tipoCita,
         fecha,
         horario,
-        estado: 'activa',
-        // Campos de visualización para el panel admin
-        cliente: cliente || '',
-        auto: auto || vehiculo.nombre,
-        imagen: imagen || '',
+        estado:        'activa',
+        cliente:       cliente || '',
+        auto:          auto || vehiculo.nombre,
+        imagen:        imagen || '',
         fechaCreacion: new Date().toISOString()
     };
 
     listaCitas.push(nuevaCita);
-    console.log(`📅 [CITA]: Nueva cita registrada — ${nuevaCita.cliente} → ${nuevaCita.auto} el ${fecha} a las ${horario}`);
+    guardarCitas();
+    console.log(`📅 [CITA]: Nueva cita — ${nuevaCita.cliente} → ${nuevaCita.auto} el ${fecha} a las ${horario}`);
 
     return res.status(201).json({ ok: true, mensaje: 'Cita registrada exitosamente.', cita: nuevaCita });
 }
@@ -124,11 +124,10 @@ function actualizarEstadoCita(req, res) {
     }
 
     const cita = listaCitas.find(c => String(c.id) === String(req.params.id));
-    if (!cita) {
-        return res.status(404).json({ ok: false, mensaje: 'Cita no encontrada.' });
-    }
+    if (!cita) return res.status(404).json({ ok: false, mensaje: 'Cita no encontrada.' });
 
     cita.estado = estado;
+    guardarCitas();
     console.log(`📅 [CITA]: Cita #${req.params.id} de ${cita.cliente} → estado: ${estado}`);
 
     return res.status(200).json({ ok: true, mensaje: `Cita actualizada a "${estado}".` });
@@ -142,23 +141,19 @@ function reprogramarCita(req, res) {
     }
 
     const cita = listaCitas.find(c => String(c.id) === String(req.params.id));
-    if (!cita) {
-        return res.status(404).json({ ok: false, mensaje: 'Cita no encontrada.' });
-    }
-
+    if (!cita) return res.status(404).json({ ok: false, mensaje: 'Cita no encontrada.' });
     if (cita.estado !== 'activa') {
         return res.status(400).json({ ok: false, mensaje: 'Solo se pueden reprogramar citas activas.' });
     }
 
-    // Validar que la nueva fecha no sea pasada (fecha en formato M/D/YYYY)
-    const [mes, dia, anio] = fecha.split('/').map(Number);
+    // Validar que la nueva fecha no sea pasada
+    const [dia, mes, anio] = fecha.split('/').map(Number);
     const fechaNueva = new Date(anio, mes - 1, dia);
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     if (fechaNueva < hoy) {
         return res.status(400).json({ ok: false, mensaje: 'No puedes reprogramar una cita para una fecha pasada.' });
     }
 
-    // Verificar que el horario esté disponible para ese vehículo (excluyendo la propia cita)
     const horarioOcupado = listaCitas.find(c =>
         c.idVehiculo === cita.idVehiculo &&
         c.fecha === fecha &&
@@ -170,7 +165,6 @@ function reprogramarCita(req, res) {
         return res.status(400).json({ ok: false, mensaje: 'El horario seleccionado ya no está disponible. Elige otro.' });
     }
 
-    // Verificar que el usuario no tenga ya otra cita a la misma hora ese día (excluyendo la propia)
     const citaMismaHora = listaCitas.find(c =>
         String(c.idUsuario) === String(cita.idUsuario) &&
         c.fecha === fecha &&
@@ -182,21 +176,15 @@ function reprogramarCita(req, res) {
         return res.status(400).json({ ok: false, mensaje: 'Ya tienes otra cita a esa hora ese día. Elige un horario diferente.' });
     }
 
-    const fechaAnterior = cita.fecha;
+    const fechaAnterior   = cita.fecha;
     const horarioAnterior = cita.horario;
-    cita.fecha = fecha;
+    cita.fecha   = fecha;
     cita.horario = horario;
+    guardarCitas();
 
-    console.log(`🔄 [REPROGRAMAR]: Cita #${req.params.id} de ${cita.cliente} → antes: ${fechaAnterior} ${horarioAnterior} → ahora: ${fecha} ${horario}`);
+    console.log(`🔄 [REPROGRAMAR]: Cita #${req.params.id} → ${fechaAnterior} ${horarioAnterior} → ${fecha} ${horario}`);
 
     return res.status(200).json({ ok: true, mensaje: 'Cita reprogramada exitosamente.', cita });
 }
 
-module.exports = {
-    getCitas,
-    getCitasPorUsuario,
-    getHorariosDisponibles,
-    crearCita,
-    actualizarEstadoCita,
-    reprogramarCita
-};
+module.exports = { getCitas, getCitasPorUsuario, getHorariosDisponibles, crearCita, actualizarEstadoCita, reprogramarCita };

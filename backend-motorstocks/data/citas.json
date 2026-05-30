@@ -1,0 +1,41 @@
+[
+  {
+    "id": "1",
+    "idUsuario": "4",
+    "idVehiculo": "1780157380535",
+    "tipoCita": "prueba_de_manejo",
+    "fecha": "30/05/2026",
+    "horario": "15:00",
+    "estado": "completada",
+    "cliente": "Tim Payne",
+    "auto": "Cadillac Ct4",
+    "imagen": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSClfhkQONW3W3T1FnclzjAkl3KURcmn2LSw&s",
+    "fechaCreacion": "2026-05-30T16:12:32.786Z"
+  },
+  {
+    "id": "2",
+    "idUsuario": "3",
+    "idVehiculo": "1780113078532",
+    "tipoCita": "inspeccion",
+    "fecha": "01/06/2026",
+    "horario": "09:00",
+    "estado": "activa",
+    "cliente": "Pablo Camargo",
+    "auto": "Toyota Fortuner",
+    "imagen": "https://upload.wikimedia.org/wikipedia/commons/6/66/2015_Toyota_Fortuner_%28New_Zealand%29.jpg",
+    "fechaCreacion": "2026-05-30T16:36:29.910Z"
+  },
+  {
+    "id": "3",
+    "idUsuario": "3",
+    "idVehiculo": "1780158455968",
+    "tipoCita": "prueba_de_manejo",
+    "fecha": "01/08/2026",
+    "horario": "10:00",
+    "estado": "activa",
+    "cliente": "Pablo Camargo",
+    "auto": "Ferrari Luce",
+    "imagen": "https://hips.hearstapps.com/hmg-prod/images/68a8fa6f-cb40-430d-9825-84afc93a8910.jpg?crop=0.662xw:0.661xh;0.175xw,0.225xh&resize=1200:*",
+    "fechaCreacion": "2026-05-30T16:37:40.309Z"
+  }
+]

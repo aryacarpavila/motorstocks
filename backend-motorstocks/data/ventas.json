@@ -1,0 +1,49 @@
+[
+  {
+    "id": "VTA-2026-00001",
+    "fechaVenta": "2026-05-30T00:44:25.862Z",
+    "idOrden": "MS-2026-00001",
+    "vehiculo": {
+      "marca": "Toyota",
+      "modelo": "Corolla",
+      "ano": "2025",
+      "precio": "$20,000",
+      "color": "N/A",
+      "motor": "N/A",
+      "transmision": "N/A",
+      "combustible": "N/A",
+      "vin": "2"
+    },
+    "comprador": {
+      "id": 2,
+      "nombre": "Santiago Alejandro",
+      "apellido": "Perez Rodríguez",
+      "correo": "saperezr1.24@est.ucab.edu.ve"
+    },
+    "vendedor": "Administrador Principal"
+  },
+  {
+    "id": "VTA-2026-00002",
+    "fechaVenta": "2026-05-30T16:14:13.549Z",
+    "idOrden": "MS-2026-00005",
+    "vehiculo": {
+      "idVehiculo": "1780157380535",
+      "marca": "Cadillac",
+      "modelo": "Ct4",
+      "ano": "2019",
+      "precio": "$10",
+      "color": "Morado",
+      "motor": "N/A",
+      "transmision": "N/A",
+      "combustible": "N/A",
+      "vin": "9484"
+    },
+    "comprador": {
+      "id": 4,
+      "nombre": "Tim",
+      "apellido": "Payne",
+      "correo": "tim_payne@hsi.com"
+    },
+    "vendedor": "Administrador Principal"
+  }
+]

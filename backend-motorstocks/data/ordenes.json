@@ -1,0 +1,139 @@
+[
+  {
+    "idOrden": "MS-2026-00001",
+    "fechaOrden": "2026-05-30T00:39:52.610Z",
+    "estado": "Vendido",
+    "comprador": {
+      "id": 2,
+      "nombre": "Santiago Alejandro",
+      "apellido": "Perez Rodríguez",
+      "correo": "saperezr1.24@est.ucab.edu.ve"
+    },
+    "vehiculo": {
+      "marca": "Toyota",
+      "modelo": "Corolla",
+      "ano": "2025",
+      "precio": "$20,000",
+      "color": "N/A",
+      "motor": "N/A",
+      "transmision": "N/A",
+      "combustible": "N/A",
+      "vin": "2"
+    }
+  },
+  {
+    "idOrden": "MS-2026-00002",
+    "fechaOrden": "2026-05-30T15:11:33.142Z",
+    "estado": "Reservado",
+    "comprador": {
+      "id": 2,
+      "nombre": "Santiago Alejandro",
+      "apellido": "Perez Rodríguez",
+      "correo": "saperezr1.24@est.ucab.edu.ve"
+    },
+    "vehiculo": {
+      "idVehiculo": "1780111486384",
+      "marca": "Toyota",
+      "modelo": "Rav 4",
+      "ano": "2026",
+      "precio": "$39,000",
+      "color": "Oro",
+      "motor": "2.5 ",
+      "transmision": "Automatica",
+      "combustible": "Híbrido",
+      "vin": "4T1BF1FKXLU567890"
+    }
+  },
+  {
+    "idOrden": "MS-2026-00003",
+    "fechaOrden": "2026-05-30T15:42:08.129Z",
+    "estado": "Reservado",
+    "comprador": {
+      "id": 0,
+      "nombre": "Administrador",
+      "apellido": "Principal",
+      "correo": "admin@motorstocks.com"
+    },
+    "vehiculo": {
+      "idVehiculo": "1780155666062",
+      "marca": "Renault",
+      "modelo": "Clio",
+      "ano": "2026",
+      "precio": "$19,500",
+      "color": "Blanco",
+      "motor": "1.5",
+      "transmision": "Automatica",
+      "combustible": "Gasolina",
+      "vin": "1FMCU0G75LU142536"
+    }
+  },
+  {
+    "idOrden": "MS-2026-00004",
+    "fechaOrden": "2026-05-30T15:48:37.390Z",
+    "estado": "Reservado",
+    "comprador": {
+      "id": 3,
+      "nombre": "Pablo",
+      "apellido": "Camargo",
+      "correo": "pabloc@gmail.com"
+    },
+    "vehiculo": {
+      "idVehiculo": "1780113078532",
+      "marca": "Toyota",
+      "modelo": "Fortuner",
+      "ano": "2024",
+      "precio": "$65,000",
+      "color": "Blanco",
+      "motor": "V6",
+      "transmision": "Automatica",
+      "combustible": "Gasolina",
+      "vin": "5N1AR2MN1KC135792"
+    }
+  },
+  {
+    "idOrden": "MS-2026-00005",
+    "fechaOrden": "2026-05-30T16:12:13.093Z",
+    "estado": "Vendido",
+    "comprador": {
+      "id": 4,
+      "nombre": "Tim",
+      "apellido": "Payne",
+      "correo": "tim_payne@hsi.com"
+    },
+    "vehiculo": {
+      "idVehiculo": "1780157380535",
+      "marca": "Cadillac",
+      "modelo": "Ct4",
+      "ano": "2019",
+      "precio": "$10",
+      "color": "Morado",
+      "motor": "N/A",
+      "transmision": "N/A",
+      "combustible": "N/A",
+      "vin": "9484"
+    }
+  },
+  {
+    "idOrden": "MS-2026-00006",
+    "fechaOrden": "2026-05-30T16:37:15.293Z",
+    "estado": "Reservado",
+    "comprador": {
+      "id": 3,
+      "nombre": "Pablo",
+      "apellido": "Camargo",
+      "correo": "pabloc@gmail.com"
+    },
+    "vehiculo": {
+      "idVehiculo": "1780158455968",
+      "marca": "Ferrari",
+      "modelo": "Luce",
+      "ano": "2026",
+      "precio": "$55",
+      "color": "Azul",
+      "motor": "Quad motor",
+      "transmision": "Automatica",
+      "combustible": "Eléctrico",
+      "vin": "5YJ3E1EBXLF619283"
+    }
+  }
+]

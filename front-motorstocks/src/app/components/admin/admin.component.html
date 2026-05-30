@@ -297,9 +297,16 @@
       <!-- Precio -->
       <div>
         <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Precio</label>
-        <input type="text" [ngModel]="nuevoAuto.precio" (ngModelChange)="formatearPrecioInput($event)" name="precio" placeholder="$0" required style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
-        <span *ngIf="nuevoAuto.precio" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">💰 {{ nuevoAuto.precio }}</span>
-        <span *ngIf="!nuevoAuto.precio" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+        <input type="text" [ngModel]="nuevoAuto.precio" (ngModelChange)="formatearPrecioInput($event)" (keydown)="onPrecioKeydown($event)" name="precio" placeholder="$0" required
+          [style.border]="errorPrecio ? '1.5px solid #dc2626' : '1px solid #ddd'"
+          style="width: 100%; padding: 12px 14px; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;"
+          onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="errorPrecio"
+          style="display:block; margin-top:6px; font-size:0.82em; color:#dc2626; font-weight:700;">
+          ⚠️ {{ errorPrecio }}
+        </span>
+        <span *ngIf="!errorPrecio && nuevoAuto.precio" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">💰 {{ nuevoAuto.precio }}</span>
+        <span *ngIf="!errorPrecio && !nuevoAuto.precio" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
       </div>
 
       <!-- Año -->

@@ -218,7 +218,7 @@
             style="background-color: #1a3a6b; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(0,68,255,0.2);"
             onmouseover="this.style.backgroundColor='#122848'"
             onmouseout="this.style.backgroundColor='#1a3a6b'">Agendar Cita</button>
-<button (click)="iniciarCompra(carro)"
+<button *ngIf="usuarioLogueado?.rol !== 'admin'" (click)="iniciarCompra(carro)"
             [disabled]="carro.reservado"
             [style.background-color]="carro.reservado ? '#9ca3af' : '#16a34a'"
             [style.cursor]="carro.reservado ? 'not-allowed' : 'pointer'"
@@ -374,7 +374,7 @@
       <div style="width: 100%; height: 280px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <img [src]="carroModal.imagen" [alt]="carroModal.modelo" style="width: 100%; height: 100%; object-fit: cover;">
       </div>
-      <button (click)="iniciarCompra(carroModal)"
+      <button *ngIf="usuarioLogueado?.rol !== 'admin'" (click)="iniciarCompra(carroModal)"
         [disabled]="carroModal.reservado"
         [style.background-color]="carroModal.reservado ? '#9ca3af' : '#111111'"
         [style.cursor]="carroModal.reservado ? 'not-allowed' : 'pointer'"

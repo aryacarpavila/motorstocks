@@ -140,6 +140,7 @@ export class CatalogoComponent implements OnInit {
         this.irALogin.emit();
       return;
     }
+    if (this.usuarioLogueado.rol === 'admin') return;
     if (carro.reservado) {
       return;
     }

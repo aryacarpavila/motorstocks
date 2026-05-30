@@ -1,0 +1,40 @@
+[
+  {
+    "id": 0,
+    "nombre": "Administrador",
+    "apellido": "Principal",
+    "correo": "admin@motorstocks.com",
+    "password": "motorstocks_123",
+    "rol": "admin"
+  },
+  {
+    "id": 2,
+    "nombre": "Santiago Alejandro",
+    "apellido": "Perez Rodríguez",
+    "correo": "saperezr1.24@est.ucab.edu.ve",
+    "password": "Santiago2006%",
+    "fechaNacimiento": "2006-08-01",
+    "fechaRegistro": "2026-05-29T23:37:49.326Z",
+    "rol": "cliente"
+  },
+  {
+    "id": 3,
+    "nombre": "Pablo",
+    "apellido": "Camargo",
+    "correo": "pabloc@gmail.com",
+    "password": "Santiago2006&",
+    "fechaNacimiento": "2000-01-02",
+    "fechaRegistro": "2026-05-30T15:18:45.256Z",
+    "rol": "cliente"
+  },
+  {
+    "id": 4,
+    "nombre": "Tim",
+    "apellido": "Payne",
+    "correo": "tim_payne@hsi.com",
+    "password": "Ad839gm_",
+    "fechaNacimiento": "2006-02-15",
+    "fechaRegistro": "2026-05-30T16:11:13.080Z",
+    "rol": "cliente"
+  }
+]
