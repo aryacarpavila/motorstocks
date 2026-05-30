@@ -14,6 +14,48 @@
     </div>
   </div>
 
+  <!-- Comprobantes de Venta -->
+  <div style="background-color: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px;">
+    <h3 style="margin-top: 0; color: #111111; font-size: 1.6em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">📄 Mis Comprobantes de Venta</h3>
+
+    <div *ngIf="misComprobantes.length === 0" style="text-align: center; padding: 40px 20px; background: #f8fafc; border-radius: 10px; border: 1px dashed #cbd5e1;">
+      <span style="font-size: 3em; display: block; margin-bottom: 15px;">📋</span>
+      <p style="color: #64748b; font-size: 1em; font-weight: 600; margin: 0;">Aún no tienes comprobantes de venta registrados.</p>
+    </div>
+
+    <div *ngIf="misComprobantes.length > 0" style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+        <thead>
+          <tr style="background: linear-gradient(135deg, #0c1e5a, #0044ff); color: #ffffff; text-align: left; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px;">
+            <th style="padding: 14px 16px;">N° Comprobante</th>
+            <th style="padding: 14px 16px;">Fecha de Venta</th>
+            <th style="padding: 14px 16px;">Vehículo</th>
+            <th style="padding: 14px 16px;">VIN / Serial</th>
+            <th style="padding: 14px 16px;">Precio</th>
+            <th style="padding: 14px 16px;">Vendedor</th>
+            <th style="padding: 14px 16px;">N° Orden</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let comp of misComprobantes; let i = index"
+            [style.background-color]="i % 2 === 0 ? '#ffffff' : '#f8fafc'"
+            style="border-bottom: 1px solid #e2e8f0; transition: background 0.15s;">
+            <td style="padding: 14px 16px; font-family: 'Courier New', monospace; font-weight: 800; color: #0044ff; font-size: 0.9em;">{{ comp.id }}</td>
+            <td style="padding: 14px 16px; color: #334155; font-weight: 600;">{{ comp.fechaVenta | date:'dd/MM/yyyy' }}</td>
+            <td style="padding: 14px 16px;">
+              <span style="font-weight: 800; color: #0c1e5a; display: block;">{{ comp.vehiculo.marca }} {{ comp.vehiculo.modelo }}</span>
+              <span style="font-size: 0.82em; color: #64748b;">Año {{ comp.vehiculo.ano }} · {{ comp.vehiculo.color }}</span>
+            </td>
+            <td style="padding: 14px 16px; font-family: 'Courier New', monospace; color: #555; font-size: 0.88em;">{{ comp.vehiculo.vin }}</td>
+            <td style="padding: 14px 16px; font-weight: 900; color: #0044ff; font-size: 1.05em;">{{ comp.vehiculo.precio }}</td>
+            <td style="padding: 14px 16px; color: #555;">{{ comp.vendedor }}</td>
+            <td style="padding: 14px 16px; font-family: 'Courier New', monospace; font-size: 0.85em; color: #64748b;">{{ comp.idOrden }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Historial de Compras -->
   <div style="background-color: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
     <h3 style="margin-top: 0; color: #111111; font-size: 1.6em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px;">🛍️ Mi Historial de Compras</h3>

@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { VentasService } from '../../services/ventas.service';
 
 @Component({
   selector: 'app-admin',
@@ -17,8 +18,13 @@ export class AdminComponent implements OnInit {
   listaOrdenes: any[] = [];
   listaCitas: any[] = [];
   citaDetalle: any = null;
+  procesandoVenta: string | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  get carrosReservados(): any[] {
+    return this.listaOrdenes.filter(o => o.estado === 'Reservado');
+  }
+
+  constructor(private cdr: ChangeDetectorRef, private ventasService: VentasService) {}
 
   ngOnInit() {
     this.cargarUsuarios();
@@ -95,5 +101,28 @@ export class AdminComponent implements OnInit {
 
   abrirRegistroAuto() {
     this.solicitarRegistroAuto.emit();
+  }
+
+  async formalizarVenta(orden: any) {
+    if (this.procesandoVenta) return;
+    this.procesandoVenta = orden.idOrden;
+    this.cdr.detectChanges();
+
+    try {
+      const vendedor = `${this.usuarioLogueado?.nombre || 'Administrador'} ${this.usuarioLogueado?.apellido || ''}`.trim();
+      const data = await this.ventasService.formalizarVenta(orden.idOrden, vendedor);
+
+      if (data.ok) {
+        orden.estado = 'Vendido';
+        alert('Venta formalizada exitosamente. El inventario ha sido actualizado');
+      } else {
+        alert(data.mensaje || 'Error al formalizar la venta.');
+      }
+    } catch (e) {
+      alert('Error de conexión con el servidor. Verifica que el backend esté corriendo.');
+    } finally {
+      this.procesandoVenta = null;
+      this.cdr.detectChanges();
+    }
   }
 }

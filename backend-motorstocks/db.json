@@ -1,4 +1,6 @@
 {
+  "ventas": [],
+  "ordenes": [],
   "usuarios": [
     {
       "id": 0,
@@ -103,7 +105,7 @@
       "direccion": "",
       "combustible": "",
       "vin": "1",
-      "reservado": false
+      "reservado": true
     },
     {
       "id": "1780008144229",

@@ -6,7 +6,7 @@ function getCarros(req, res) {
         if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos' });
         const db = JSON.parse(data);
         // Devolver el arreglo de carros directamente para compatibilidad con el frontend actual
-        return res.status(200).json(db.carros);
+        return res.status(200).json(db.carros.filter(c => !c.vendido));
     });
 }
 

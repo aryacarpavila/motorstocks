@@ -12,6 +12,7 @@ app.use('/api', require('./routes/carros.routes'));
 app.use('/api', require('./routes/vehiculos.routes'));
 app.use('/api', require('./routes/ordenes.routes'));
 app.use('/api', require('./routes/citas.routes'));
+app.use('/api', require('./routes/ventas.routes'));
 
 app.listen(PORT, () => {
     console.log(`\n🚀 MotorStocks Backend en http://localhost:${PORT}`);

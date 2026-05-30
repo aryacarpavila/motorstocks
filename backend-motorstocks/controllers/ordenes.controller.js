@@ -53,13 +53,15 @@ function crearOrden(req, res) {
     ordenesDeCompra.push(nuevaOrden);
     autosReservados[claveAuto] = { idOrden, comprador: `${usuarioNombre} ${usuarioApellido}` };
 
-    // Persistir reservado: true en db.json
+    // Persistir orden + reservado: true en db.json
     try {
         const dbData = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
         const idx = dbData.carros.findIndex(c => `${c.marca}-${c.modelo}` === claveAuto);
         if (idx !== -1) {
             dbData.carros[idx].reservado = true;
         }
+        if (!dbData.ordenes) dbData.ordenes = [];
+        dbData.ordenes.push(nuevaOrden);
         fs.writeFileSync(dbPath, JSON.stringify(dbData, null, 2), 'utf8');
     } catch (e) {
         console.error('Error actualizando db.json:', e);

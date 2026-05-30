@@ -104,6 +104,48 @@
         </div>
       </div>
 
+      <!-- Carros Reservados: Formalizar Venta -->
+      <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd; border-top: 4px solid #f59e0b;">
+        <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">🔒 Carros Reservados</h3>
+
+        <div *ngIf="carrosReservados.length === 0" style="text-align: center; color: #888; padding: 30px 0; font-size: 0.95em;">
+          No hay vehículos reservados pendientes de formalización.
+        </div>
+
+        <div style="overflow-x: auto;" *ngIf="carrosReservados.length > 0">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
+            <thead>
+              <tr style="background-color: #111111; color: #ffffff; text-align: left; text-transform: uppercase;">
+                <th style="padding: 12px;">Vehículo</th>
+                <th style="padding: 12px;">VIN</th>
+                <th style="padding: 12px;">Comprador</th>
+                <th style="padding: 12px;">Precio</th>
+                <th style="padding: 12px;">N° Orden</th>
+                <th style="padding: 12px; text-align: center;">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let orden of carrosReservados" style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px; font-weight: 700;">{{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }}</td>
+                <td style="padding: 12px; font-family: 'Courier New', monospace; color: #555; font-size: 0.88em;">{{ orden.vehiculo.vin }}</td>
+                <td style="padding: 12px; color: #555;">{{ orden.comprador.nombre }} {{ orden.comprador.apellido }}<br><span style="font-size: 0.82em; color: #94a3b8;">{{ orden.comprador.correo }}</span></td>
+                <td style="padding: 12px; font-weight: 700; color: #0044ff;">{{ orden.vehiculo.precio }}</td>
+                <td style="padding: 12px; font-family: 'Courier New', monospace; font-size: 0.88em; color: #64748b;">{{ orden.idOrden }}</td>
+                <td style="padding: 12px; text-align: center;">
+                  <button (click)="formalizarVenta(orden)"
+                    [disabled]="procesandoVenta === orden.idOrden"
+                    [style.background-color]="procesandoVenta === orden.idOrden ? '#9ca3af' : '#16a34a'"
+                    [style.cursor]="procesandoVenta === orden.idOrden ? 'not-allowed' : 'pointer'"
+                    style="color: #ffffff; border: none; padding: 8px 18px; font-size: 0.85em; font-weight: 800; border-radius: 6px; text-transform: uppercase; transition: background 0.2s;">
+                    {{ procesandoVenta === orden.idOrden ? '⏳ Procesando...' : '✅ Formalizar Venta' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- Órdenes de Compra -->
       <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd; border-top: 4px solid #16a34a;">
         <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">🛒 Órdenes de Compra</h3>
