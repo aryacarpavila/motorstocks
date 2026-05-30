@@ -58,7 +58,7 @@ export class CatalogoComponent implements OnInit {
     return [...filtrados].sort((a, b) => {
       switch (this.ordenarPor) {
         case 'precio_asc':  return parsePrecio(a) - parsePrecio(b);
-        case 'precio_asc': return parsePrecio(b) - parsePrecio(a);
+        case 'precio_desc': return parsePrecio(b) - parsePrecio(a);
         case 'km_asc':      return parseKm(a) - parseKm(b);
         case 'km_desc':     return parseKm(b) - parseKm(a);
         default: return 0;

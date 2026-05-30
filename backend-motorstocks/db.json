@@ -46,6 +46,28 @@
         "combustible": "N/A",
         "vin": "2"
       }
+    },
+    {
+      "idOrden": "MS-2026-00002",
+      "fechaOrden": "2026-05-30T15:11:33.142Z",
+      "estado": "Reservado",
+      "comprador": {
+        "id": 2,
+        "nombre": "Santiago Alejandro",
+        "apellido": "Perez Rodríguez",
+        "correo": "saperezr1.24@est.ucab.edu.ve"
+      },
+      "vehiculo": {
+        "marca": "Toyota",
+        "modelo": "Rav 4",
+        "ano": "2026",
+        "precio": "$39,000",
+        "color": "Oro",
+        "motor": "2.5 ",
+        "transmision": "Automatica",
+        "combustible": "Híbrido",
+        "vin": "4T1BF1FKXLU567890"
+      }
     }
   ],
   "usuarios": [
@@ -66,6 +88,16 @@
       "fechaNacimiento": "2006-08-01",
       "fechaRegistro": "2026-05-29T23:37:49.326Z",
       "rol": "cliente"
+    },
+    {
+      "id": 3,
+      "nombre": "Pablo",
+      "apellido": "Camargo",
+      "correo": "pabloc@gmail.com",
+      "password": "Santiago2006&",
+      "fechaNacimiento": "2000-01-02",
+      "fechaRegistro": "2026-05-30T15:18:45.256Z",
+      "rol": "cliente"
     }
   ],
   "carros": [
@@ -83,8 +115,25 @@
       "tipo": "SUV",
       "combustible": "Híbrido",
       "vin": "4T1BF1FKXLU567890",
-      "reservado": false,
+      "reservado": true,
       "id": "1780111486384"
+    },
+    {
+      "marca": "Toyota",
+      "modelo": "Fortuner",
+      "precio": "$65,000",
+      "ano": "2024",
+      "kilometraje": "8,500 km",
+      "imagen": "https://upload.wikimedia.org/wikipedia/commons/6/66/2015_Toyota_Fortuner_%28New_Zealand%29.jpg",
+      "motor": "V6",
+      "transmision": "Automatica",
+      "blindaje": "Nivel 2",
+      "color": "Blanco",
+      "tipo": "SUV",
+      "combustible": "Gasolina",
+      "vin": "5N1AR2MN1KC135792",
+      "reservado": false,
+      "id": "1780113078532"
     }
   ]
 }
