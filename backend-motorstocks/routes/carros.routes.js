@@ -4,7 +4,7 @@ const { getCarros, getCarrosAdmin, getCarroPorId, registrarCarro, liberarCarro }
 
 router.get('/carros',              getCarros);
 router.get('/carros/admin',        getCarrosAdmin);
-router.get('/vehiculos/:id',       getCarroPorId);   // verificar disponibilidad de un vehículo
+router.get('/carros/:id',          getCarroPorId);   // verificar disponibilidad de un carro
 router.post('/carros',             registrarCarro);
 router.patch('/carros/:id/liberar', liberarCarro);
 

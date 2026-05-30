@@ -4,8 +4,8 @@ import { Injectable } from '@angular/core';
 export class CitaService {
   private apiUrl = 'http://localhost:3000/api';
 
-  // Vehículo compartido entre app.ts y AgendarCitaComponent
-  vehiculoSeleccionado: any = null;
+  // Carro compartido entre catalogo.component.ts y agendar-cita.component.ts
+  carroSeleccionado: any = null;
 
   // Obtener todas las citas de un usuario
   async getCitasByUsuario(idUsuario: string | number): Promise<any[]> {
@@ -18,13 +18,13 @@ export class CitaService {
     }
   }
 
-  // Obtener citas activas de un usuario para un vehículo específico
+  // Obtener citas activas de un usuario para un carro específico
   async getCitasByUsuarioYVehiculo(idUsuario: string | number, idVehiculo: string): Promise<any[]> {
     const citas = await this.getCitasByUsuario(idUsuario);
     return citas.filter((c: any) => c.idVehiculo === idVehiculo && c.estado === 'activa');
   }
 
-  // Obtener los horarios disponibles para un vehículo en una fecha dada
+  // Obtener los horarios disponibles para un carro en una fecha dada
   async getHorariosDisponibles(idVehiculo: string, fecha: string): Promise<string[]> {
     try {
       const res = await fetch(
@@ -37,13 +37,13 @@ export class CitaService {
     }
   }
 
-  // Verificar que un vehículo existe y está disponible en el catálogo (dependencia HU5)
+  // Verificar que un carro existe y está disponible en el catálogo (dependencia HU5)
   // Si se pasa idUsuario, el backend permite disponibilidad para el dueño de la reserva
-  async getVehiculo(idVehiculo: string, idUsuario?: string | number): Promise<{ ok: boolean; vehiculo?: any; mensaje?: string }> {
+  async getCarro(idVehiculo: string, idUsuario?: string | number): Promise<{ ok: boolean; vehiculo?: any; mensaje?: string }> {
     try {
       const url = idUsuario
-        ? `${this.apiUrl}/vehiculos/${idVehiculo}?idUsuario=${idUsuario}`
-        : `${this.apiUrl}/vehiculos/${idVehiculo}`;
+        ? `${this.apiUrl}/carros/${idVehiculo}?idUsuario=${idUsuario}`
+        : `${this.apiUrl}/carros/${idVehiculo}`;
       const res = await fetch(url);
       return await res.json();
     } catch {

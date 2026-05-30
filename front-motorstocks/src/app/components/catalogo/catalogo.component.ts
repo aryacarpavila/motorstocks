@@ -131,7 +131,7 @@ export class CatalogoComponent implements OnInit {
       this.irALogin.emit();
       return;
     }
-    this.citaService.vehiculoSeleccionado = carro;
+    this.citaService.carroSeleccionado = carro;
     this.router.navigate(['/agendar-cita', carro.id]);
   }
 
@@ -171,7 +171,7 @@ export class CatalogoComponent implements OnInit {
     this.mostrarModalOrden = false;
     this.ordenConfirmada = null;
     this.carroSeleccionadoParaCompra = null;
-    this.citaService.vehiculoSeleccionado = carro;
+    this.citaService.carroSeleccionado = carro;
     this.cdr.detectChanges();
     this.router.navigate(['/agendar-cita', carro.id]);
   }

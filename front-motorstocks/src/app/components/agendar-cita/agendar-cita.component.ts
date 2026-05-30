@@ -13,7 +13,7 @@ import { CitaService } from '../../services/cita.service';
 })
 export class AgendarCitaComponent implements OnInit {
   usuario: any = null;
-  vehiculo: any = null;
+  carro: any = null;
   idVehiculo: string = '';
 
   citaForm = { tipoCita: '', fecha: '', horario: '' };
@@ -25,7 +25,7 @@ export class AgendarCitaComponent implements OnInit {
   private fechaCambioId = 0;
   cargando = false;
 
-  verificando = true;  // Chequeo inicial antes de mostrar el formulario
+  verificando = true;
   mensajeError: string | null = null;
   mensajeExito: string | null = null;
   listoParaMostrar = false;
@@ -40,7 +40,6 @@ export class AgendarCitaComponent implements OnInit {
   async ngOnInit() {
     this.idVehiculo = this.route.snapshot.paramMap.get('idVehiculo') || '';
 
-    // Garantizar que el spinner sea visible mínimo 400ms
     this.cdr.detectChanges();
     const spinnerMinimo = new Promise(resolve => setTimeout(resolve, 400));
 
@@ -65,49 +64,46 @@ export class AgendarCitaComponent implements OnInit {
       return;
     }
 
-    // Recuperar idVehiculo desde el servicio compartido (solo como referencia inicial)
-    this.vehiculo = this.citaService.vehiculoSeleccionado;
-    if (!this.vehiculo) {
+    // Recuperar carro desde el servicio compartido
+    this.carro = this.citaService.carroSeleccionado;
+    if (!this.carro) {
       localStorage.setItem('pendingSection', 'catalogo');
       this.router.navigate(['/']);
       return;
     }
 
-    // Verificar disponibilidad del vehículo contra el backend (dependencia HU5)
-    // Se pasa el idUsuario para que el backend permita al dueño de la reserva agendar cita
-    const verificacionVehiculo = await this.citaService.getVehiculo(this.idVehiculo, this.usuario.id);
-    if (!verificacionVehiculo.ok || !verificacionVehiculo.vehiculo) {
+    // Verificar disponibilidad contra el backend (dependencia HU5)
+    // Se pasa idUsuario para que el dueño de la reserva pueda agendar cita
+    const verificacionCarro = await this.citaService.getCarro(this.idVehiculo, this.usuario.id);
+    if (!verificacionCarro.ok || !verificacionCarro.vehiculo) {
       await spinnerMinimo;
       this.verificando = false;
-      this.mensajeError = verificacionVehiculo.mensaje || 'Este vehículo no se encontró en el catálogo.';
+      this.mensajeError = verificacionCarro.mensaje || 'Este carro no se encontró en el catálogo.';
       this.cdr.detectChanges();
       return;
     }
-    if (!verificacionVehiculo.vehiculo.disponible) {
+    if (!verificacionCarro.vehiculo.disponible) {
       await spinnerMinimo;
       this.verificando = false;
-      this.mensajeError = 'Este vehículo ya no está disponible en el catálogo.';
+      this.mensajeError = 'Este carro ya no está disponible en el catálogo.';
       this.cdr.detectChanges();
       return;
     }
-    // Mantener this.vehiculo con los datos completos del catálogo (imagen, marca, modelo, precio)
-    // El backend solo se usa para validar disponibilidad, no para reemplazar los datos de display
 
-    // Verificar si ya tiene una cita activa para este vehículo
+    // Verificar si ya tiene una cita activa para este carro
     const [citasActivas] = await Promise.all([
       this.citaService.getCitasByUsuarioYVehiculo(this.usuario.id, this.idVehiculo),
-      spinnerMinimo  // esperar el mínimo visual antes de ocultar el spinner
+      spinnerMinimo
     ]);
 
     this.verificando = false;
 
     if (citasActivas.length > 0) {
-      this.mensajeError = 'Ya tienes una cita activa para este vehículo.';
+      this.mensajeError = 'Ya tienes una cita activa para este carro.';
       this.cdr.detectChanges();
       return;
     }
 
-    // Todo OK — mostrar formulario
     this.listoParaMostrar = true;
     this.cdr.detectChanges();
   }
@@ -199,21 +195,21 @@ export class AgendarCitaComponent implements OnInit {
     const fechaFormateada = `${d}/${m}/${y}`;
 
     const resultado = await this.citaService.registrarCita({
-      idUsuario: this.usuario.id,
+      idUsuario:  this.usuario.id,
       idVehiculo: this.idVehiculo,
-      tipoCita: this.citaForm.tipoCita,
-      fecha: fechaFormateada,
-      horario: this.citaForm.horario,
-      cliente: `${this.usuario.nombre} ${this.usuario.apellido}`,
-      auto: `${this.vehiculo.marca} ${this.vehiculo.modelo}`,
-      imagen: this.vehiculo.imagen || ''
+      tipoCita:   this.citaForm.tipoCita,
+      fecha:      fechaFormateada,
+      horario:    this.citaForm.horario,
+      cliente:    `${this.usuario.nombre} ${this.usuario.apellido}`,
+      auto:       `${this.carro.marca} ${this.carro.modelo}`,
+      imagen:     this.carro.imagen || ''
     });
 
     this.cargando = false;
 
     if (resultado.ok) {
       const tipoLabel = this.citaForm.tipoCita === 'inspeccion' ? 'Inspección' : 'Prueba de Manejo';
-      const detalle = `${this.vehiculo.marca} ${this.vehiculo.modelo} · ${tipoLabel} · ${fechaFormateada} a las ${this.citaForm.horario}`;
+      const detalle = `${this.carro.marca} ${this.carro.modelo} · ${tipoLabel} · ${fechaFormateada} a las ${this.citaForm.horario}`;
       this.mensajeExito = detalle;
       this.listoParaMostrar = false;
       sessionStorage.setItem('citaAgendadaExito', detalle);
