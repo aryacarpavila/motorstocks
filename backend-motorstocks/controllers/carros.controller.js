@@ -31,11 +31,11 @@ function registrarCarro(req, res) {
             : str;
 
         nuevoCarro.marca = toTitleCase(nuevoCarro.marca);
-        nuevoCarro.modelo = nuevoCarro.modelo ? nuevoCarro.modelo.trim() : nuevoCarro.modelo;
+        nuevoCarro.modelo = toTitleCase(nuevoCarro.modelo);
         nuevoCarro.color = toTitleCase(nuevoCarro.color);
-        nuevoCarro.combustible = toTitleCase(nuevoCarro.combustible);
+        nuevoCarro.combustible = nuevoCarro.combustible ? nuevoCarro.combustible.trim() : nuevoCarro.combustible;
         nuevoCarro.transmision = nuevoCarro.transmision ? nuevoCarro.transmision.trim() : nuevoCarro.transmision;
-        nuevoCarro.direccion = toTitleCase(nuevoCarro.direccion);
+        nuevoCarro.tipo = nuevoCarro.tipo ? nuevoCarro.tipo.trim() : nuevoCarro.tipo;
 
         if (!nuevoCarro.id) {
             nuevoCarro.id = Date.now().toString(); // Asignar un ID único
@@ -49,4 +49,27 @@ function registrarCarro(req, res) {
     });
 }
 
-module.exports = { getCarros, registrarCarro };
+function getCarrosAdmin(req, res) {
+    // Para admin: devuelve todos los carros incluyendo vendidos
+    fs.readFile(dbPath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ ok: false, mensaje: 'Error al leer la base de datos' });
+        const db = JSON.parse(data);
+        return res.status(200).json(db.carros);
+    });
+}
+
+function liberarCarro(req, res) {
+    const { id } = req.params;
+    try {
+        const db = leerDB();
+        const idx = db.carros.findIndex(c => String(c.id) === String(id));
+        if (idx === -1) return res.status(404).json({ ok: false, mensaje: 'Carro no encontrado.' });
+        db.carros[idx].reservado = false;
+        escribirDB(db);
+        return res.status(200).json({ ok: true, mensaje: 'Carro liberado correctamente.' });
+    } catch (e) {
+        return res.status(500).json({ ok: false, mensaje: 'Error al liberar el carro.' });
+    }
+}
+
+module.exports = { getCarros, getCarrosAdmin, registrarCarro, liberarCarro };

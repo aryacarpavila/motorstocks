@@ -65,7 +65,7 @@ export class HistorialCitasComponent implements OnInit {
   private ordenarPorFecha(citas: any[]): any[] {
     return [...citas].sort((a, b) => {
       const toDate = (fecha: string) => {
-        const [m, d, y] = fecha.split('/');
+        const [d, m, y] = fecha.split('/');
         return new Date(Number(y), Number(m) - 1, Number(d)).getTime();
       };
       const fechaDiff = toDate(a.fecha) - toDate(b.fecha);
@@ -173,7 +173,7 @@ export class HistorialCitasComponent implements OnInit {
     }
 
     const [y, m, d] = this.nuevaFecha.split('-');
-    const fechaFormateada = `${m}/${d}/${y}`;
+    const fechaFormateada = `${d}/${m}/${y}`;
     const [horarios] = await Promise.all([
       this.citaService.getHorariosDisponibles(this.citaAReprogramar.idVehiculo, fechaFormateada),
       spinnerMinimo
@@ -201,7 +201,7 @@ export class HistorialCitasComponent implements OnInit {
 
     this.reprogramando = true;
     const [y, m, d] = this.nuevaFecha.split('-');
-    const fechaFormateada = `${m}/${d}/${y}`;
+    const fechaFormateada = `${d}/${m}/${y}`;
 
     const resultado = await this.citaService.reprogramarCita(
       this.citaAReprogramar.id,

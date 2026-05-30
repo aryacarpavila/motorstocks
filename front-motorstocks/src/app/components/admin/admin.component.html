@@ -1,9 +1,22 @@
-<div style="max-width: 1300px; margin: 40px auto; padding: 0 20px;">
+<!-- TOAST: AUTO REGISTRADO -->
+<div *ngIf="toastAutoRegistrado"
+  style="position: fixed; top: 80px; right: 28px; z-index: 9000; display: flex; align-items: flex-start; gap: 14px; background: #ffffff; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); padding: 18px 20px; min-width: 300px; max-width: 400px; border-left: 5px solid #16a34a; animation: slideIn 0.3s ease;">
+  <div style="width: 42px; height: 42px; background: linear-gradient(135deg, #15803d, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3em; flex-shrink: 0;">🚗</div>
+  <div style="flex: 1; min-width: 0;">
+    <p style="margin: 0 0 3px 0; font-weight: 800; color: #15803d; font-size: 0.95em; text-transform: uppercase; letter-spacing: 0.5px;">¡Vehículo registrado!</p>
+    <p style="margin: 0; color: #374151; font-size: 0.88em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ toastAutoRegistrado }} fue agregado al catálogo.</p>
+  </div>
+  <button (click)="cerrarToast()"
+    style="background: transparent; border: none; color: #9ca3af; font-size: 1.1em; cursor: pointer; padding: 0; line-height: 1; flex-shrink: 0; margin-top: 2px;"
+    onmouseover="this.style.color='#374151'" onmouseout="this.style.color='#9ca3af'">✕</button>
+</div>
+
+<div *ngIf="vistaAdmin === 'panel'" style="max-width: 1300px; margin: 40px auto; padding: 0 20px;">
 
   <div style="margin-bottom: 30px;">
     <h2 style="font-size: 2.5em; font-weight: 900; color: #111111; text-transform: uppercase; margin: 0;">Panel de
       Control</h2>
-    <p style="color: #0044ff; font-weight: 700; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">
+    <p style="color: #1a3a6b; font-weight: 700; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">
       Acceso Restringido</p>
   </div>
 
@@ -16,7 +29,7 @@
           Usuarios</span>
         <span style="font-size: 2.5em; font-weight: 900; color: #111111;">{{ listaUsuarios.length }}</span>
       </div>
-      <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #0044ff;">
+      <div style="background-color: #ffffff; padding: 25px; border: 1px solid #ddd; border-top: 4px solid #1a3a6b;">
         <span
           style="display: block; font-size: 0.8em; color: #555; font-weight: 700; text-transform: uppercase;">Autos
           Disponibles</span>
@@ -35,10 +48,10 @@
       <!-- Botón Agregar Auto -->
       <div style="background-color: #ffffff; padding: 30px; border: 1px solid #ddd; text-align: center;">
         <h3 style="margin-top: 0; color: #111111; font-size: 1.5em; font-weight: 900; text-transform: uppercase; margin-bottom: 25px;">Ingresar Vehículo</h3>
-        <button (click)="abrirRegistroAuto()"
-          style="width: 100%; max-width: 400px; background-color: #0044ff; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s; border-radius: 8px;"
-          onmouseover="this.style.backgroundColor='#0033cc'"
-          onmouseout="this.style.backgroundColor='#0044ff'">Registrar Vehículo</button>
+        <button (click)="irARegistrarAuto()"
+          style="width: 100%; max-width: 400px; background-color: #1a3a6b; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s; border-radius: 8px;"
+          onmouseover="this.style.backgroundColor='#122848'"
+          onmouseout="this.style.backgroundColor='#1a3a6b'">Registrar Vehículo</button>
       </div>
 
       <!-- Gestión de Citas -->
@@ -52,7 +65,7 @@
             <div>
               <h4 style="margin: 0; color: #111111; font-size: 1.2em; font-weight: 800;">{{ cita.cliente }}</h4>
               <p style="margin: 5px 0 0 0; color: #555; font-size: 0.9em;">Vehículo: <strong
-                  style="color: #0044ff;">{{ cita.auto }}</strong></p>
+                  style="color: #1a3a6b;">{{ cita.auto }}</strong></p>
               <p style="margin: 5px 0 0 0; color: #777; font-size: 0.85em;">{{ cita.fecha }} a las {{ cita.horario || cita.hora }}</p>
             </div>
             <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
@@ -96,7 +109,7 @@
                 <td style="padding: 12px; font-weight: 600;">{{ user.id }}</td>
                 <td style="padding: 12px; font-weight: 700;">{{ user.nombre }} {{ user.apellido }}</td>
                 <td style="padding: 12px; color: #555;">{{ user.correo }}</td>
-                <td style="padding: 12px;"><span [style.color]="user.rol === 'admin' ? '#0044ff' : '#111111'"
+                <td style="padding: 12px;"><span [style.color]="user.rol === 'admin' ? '#1a3a6b' : '#111111'"
                     style="font-weight: 800; text-transform: uppercase;">{{ user.rol }}</span></td>
               </tr>
             </tbody>
@@ -129,7 +142,7 @@
                 <td style="padding: 12px; font-weight: 700;">{{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }}</td>
                 <td style="padding: 12px; font-family: 'Courier New', monospace; color: #555; font-size: 0.88em;">{{ orden.vehiculo.vin }}</td>
                 <td style="padding: 12px; color: #555;">{{ orden.comprador.nombre }} {{ orden.comprador.apellido }}<br><span style="font-size: 0.82em; color: #94a3b8;">{{ orden.comprador.correo }}</span></td>
-                <td style="padding: 12px; font-weight: 700; color: #0044ff;">{{ orden.vehiculo.precio }}</td>
+                <td style="padding: 12px; font-weight: 700; color: #1a3a6b;">{{ orden.vehiculo.precio }}</td>
                 <td style="padding: 12px; font-family: 'Courier New', monospace; font-size: 0.88em; color: #64748b;">{{ orden.idOrden }}</td>
                 <td style="padding: 12px; text-align: center;">
                   <button (click)="formalizarVenta(orden)"
@@ -165,10 +178,10 @@
             </thead>
             <tbody>
               <tr *ngFor="let orden of listaOrdenes" style="border-bottom: 1px solid #eee;">
-                <td style="padding: 12px; font-family: 'Courier New', monospace; font-weight: 700; color: #0044ff; font-size: 0.95em;">{{ orden.idOrden }}</td>
+                <td style="padding: 12px; font-family: 'Courier New', monospace; font-weight: 700; color: #1a3a6b; font-size: 0.95em;">{{ orden.idOrden }}</td>
                 <td style="padding: 12px; font-weight: 700;">{{ orden.vehiculo.marca }} {{ orden.vehiculo.modelo }}</td>
                 <td style="padding: 12px; color: #555;">{{ orden.comprador.nombre }} {{ orden.comprador.apellido }}</td>
-                <td style="padding: 12px; font-weight: 700; color: #0044ff;">{{ orden.vehiculo.precio }}</td>
+                <td style="padding: 12px; font-weight: 700; color: #1a3a6b;">{{ orden.vehiculo.precio }}</td>
                 <td style="padding: 12px;">
                   <span style="background: #16a34a; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.8em; font-weight: 700; text-transform: uppercase;">{{ orden.estado }}</span>
                 </td>
@@ -182,6 +195,230 @@
   </div>
 </div>
 
+<!-- MODAL: VENTA FORMALIZADA -->
+<div *ngIf="ventaConfirmada"
+  style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.65); display: flex; justify-content: center; align-items: center; z-index: 5000; padding: 20px; box-sizing: border-box;"
+  (click)="cerrarVentaConfirmada()">
+
+  <div (click)="$event.stopPropagation()"
+    style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 25px 60px rgba(0,0,0,0.35); overflow: hidden; position: relative;">
+
+    <!-- Header verde -->
+    <div style="background: linear-gradient(135deg, #15803d, #16a34a); padding: 36px 30px; text-align: center;">
+      <div style="width: 72px; height: 72px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2em; margin: 0 auto 16px auto;">✅</div>
+      <h2 style="margin: 0 0 6px 0; color: #ffffff; font-size: 1.7em; font-weight: 900; text-transform: uppercase;">¡Venta Formalizada!</h2>
+      <p style="margin: 0; color: rgba(255,255,255,0.85); font-size: 0.95em;">Venta formalizada exitosamente. El inventario ha sido actualizado.</p>
+    </div>
+
+    <!-- Cuerpo -->
+    <div style="padding: 28px 30px; display: flex; flex-direction: column; gap: 14px;">
+
+      <!-- ID Venta -->
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 18px; text-align: center;">
+        <span style="display: block; font-size: 0.75em; color: #166534; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">N° Comprobante</span>
+        <span style="font-size: 1.5em; font-weight: 900; color: #15803d; font-family: 'Courier New', monospace; letter-spacing: 2px;">{{ ventaConfirmada.id }}</span>
+      </div>
+
+      <!-- Detalles -->
+      <div style="background: #f8fafc; border-radius: 10px; padding: 18px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8em; color: #64748b; font-weight: 700; text-transform: uppercase;">Vehículo</span>
+          <span style="font-weight: 800; color: #0c1e5a;">{{ ventaConfirmada.vehiculo.marca }} {{ ventaConfirmada.vehiculo.modelo }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8em; color: #64748b; font-weight: 700; text-transform: uppercase;">VIN / Serial</span>
+          <span style="font-weight: 700; color: #111; font-family: 'Courier New', monospace; font-size: 0.9em;">{{ ventaConfirmada.vehiculo.vin }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8em; color: #64748b; font-weight: 700; text-transform: uppercase;">Comprador</span>
+          <span style="font-weight: 700; color: #111;">{{ ventaConfirmada.comprador.nombre }} {{ ventaConfirmada.comprador.apellido }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8em; color: #64748b; font-weight: 700; text-transform: uppercase;">Precio</span>
+          <span style="font-weight: 900; color: #1a3a6b; font-size: 1.1em;">{{ ventaConfirmada.vehiculo.precio }}</span>
+        </div>
+        <div style="border-top: 1px solid #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.8em; color: #64748b; font-weight: 700; text-transform: uppercase;">Vendedor</span>
+          <span style="font-weight: 700; color: #111;">{{ ventaConfirmada.vendedor }}</span>
+        </div>
+      </div>
+
+      <button (click)="cerrarVentaConfirmada()"
+        style="width: 100%; background: #111111; color: #ffffff; border: none; padding: 14px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 10px; transition: 0.2s; margin-top: 4px;"
+        onmouseover="this.style.backgroundColor='#333'" onmouseout="this.style.backgroundColor='#111111'">
+        Cerrar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- VISTA: REGISTRAR NUEVO VEHÍCULO -->
+<div *ngIf="vistaAdmin === 'registrar'" style="min-height: 100vh; background-color: #f4f4f4;">
+
+  <!-- Header de la vista -->
+  <div style="background-color: #111111; padding: 20px 40px; display: flex; align-items: center; gap: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+    <button (click)="volverAlPanel()"
+      style="background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; padding: 8px 18px; font-size: 0.88em; font-weight: 700; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px; transition: 0.2s; text-transform: uppercase;"
+      onmouseover="this.style.borderColor='#ffffff'; this.style.background='rgba(255,255,255,0.08)'"
+      onmouseout="this.style.borderColor='rgba(255,255,255,0.3)'; this.style.background='transparent'">
+      ← Volver
+    </button>
+    <div>
+      <h2 style="margin: 0; color: #ffffff; font-size: 1.4em; font-weight: 900; text-transform: uppercase;">Registrar Nuevo Vehículo</h2>
+      <p style="margin: 2px 0 0 0; color: #4a7ab5; font-size: 0.8em; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Panel de Control</p>
+    </div>
+  </div>
+
+  <!-- Contenido del formulario -->
+  <div style="max-width: 1100px; margin: 40px auto; padding: 0 30px;">
+    <form (submit)="agregarAuto($event)" style="background: #ffffff; border: 1px solid #ddd; border-top: 4px solid #1a3a6b; padding: 40px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; align-items: start;">
+
+      <!-- Marca -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Marca</label>
+        <input type="text" [(ngModel)]="nuevoAuto.marca" name="marca" required placeholder="Ej. Toyota" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.marca" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🏷️ {{ nuevoAuto.marca }}</span>
+        <span *ngIf="!nuevoAuto.marca" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Modelo -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Modelo</label>
+        <input type="text" [(ngModel)]="nuevoAuto.modelo" name="modelo" required placeholder="Ej. Corolla" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.modelo" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🚘 {{ nuevoAuto.modelo }}</span>
+        <span *ngIf="!nuevoAuto.modelo" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Precio -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Precio</label>
+        <input type="text" [ngModel]="nuevoAuto.precio" (ngModelChange)="formatearPrecioInput($event)" name="precio" placeholder="$0" required style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.precio" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">💰 {{ nuevoAuto.precio }}</span>
+        <span *ngIf="!nuevoAuto.precio" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Año -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Año</label>
+        <input type="text" [(ngModel)]="nuevoAuto.ano" name="ano" required placeholder="Ej. 2023" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.ano" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">📅 {{ nuevoAuto.ano }}</span>
+        <span *ngIf="!nuevoAuto.ano" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Motor -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Motor <span style="font-weight:400; font-size:0.88em; color:#888; text-transform:none;">(Opcional)</span></label>
+        <input type="text" [(ngModel)]="nuevoAuto.motor" name="motor" placeholder="Ej. V8 5.0L" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.motor" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">⚙️ {{ nuevoAuto.motor }}</span>
+        <span *ngIf="!nuevoAuto.motor" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Transmisión -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Transmisión <span style="font-weight:400; font-size:0.88em; color:#888; text-transform:none;">(Opcional)</span></label>
+        <input type="text" [(ngModel)]="nuevoAuto.transmision" name="transmision" placeholder="Ej. Automática" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.transmision" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🕹️ {{ nuevoAuto.transmision }}</span>
+        <span *ngIf="!nuevoAuto.transmision" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Kilometraje -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Kilometraje <span style="font-weight:400; font-size:0.88em; color:#888; text-transform:none;">(Opcional)</span></label>
+        <input type="text" [(ngModel)]="kilometrajeRaw" (ngModelChange)="onKilometrajeChange()" (keydown)="onKilometrajeKeydown($event)" name="kilometraje" inputmode="numeric" placeholder="Ej. 15,000" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.kilometraje" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🛣️ {{ nuevoAuto.kilometraje }}</span>
+        <span *ngIf="!nuevoAuto.kilometraje" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Blindaje -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Blindaje <span style="font-weight:400; font-size:0.88em; color:#888; text-transform:none;">(Opcional)</span></label>
+        <input type="text" [(ngModel)]="nuevoAuto.blindaje" name="blindaje" placeholder="Ej. Nivel 3" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.blindaje" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🛡️ {{ nuevoAuto.blindaje }}</span>
+        <span *ngIf="!nuevoAuto.blindaje" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Color -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Color <span style="font-weight:400; font-size:0.88em; color:#888; text-transform:none;">(Opcional)</span></label>
+        <input type="text" [(ngModel)]="nuevoAuto.color" name="color" placeholder="Ej. Blanco" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.color" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🎨 {{ nuevoAuto.color }}</span>
+        <span *ngIf="!nuevoAuto.color" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Combustible -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Combustible <span style="font-weight:400; font-size:0.88em; color:#1a3a6b; text-transform:none;">(Recomendado)</span></label>
+        <select [(ngModel)]="nuevoAuto.combustible" name="combustible" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-family: inherit; font-size: 0.95em; color: #111; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+          <option value="">Seleccionar...</option>
+          <option value="Gasolina">⛽ Gasolina</option>
+          <option value="Eléctrico">⚡ Eléctrico</option>
+          <option value="Híbrido">🔋 Híbrido</option>
+          <option value="Plug-in Hybrid">🔌 Plug-in Hybrid</option>
+        </select>
+        <span style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Tipo -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Tipo de Vehículo <span style="font-weight:400; font-size:0.88em; color:#1a3a6b; text-transform:none;">(Recomendado)</span></label>
+        <select [(ngModel)]="nuevoAuto.tipo" name="tipo" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-family: inherit; font-size: 0.95em; color: #111; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+          <option value="">Seleccionar...</option>
+          <option value="Sedán">🚗 Sedán</option>
+          <option value="SUV">🚙 SUV</option>
+          <option value="Pickup">🛻 Pickup</option>
+          <option value="Coupé">🏎️ Coupé</option>
+          <option value="Hatchback">🚘 Hatchback</option>
+          <option value="Convertible">🏖️ Convertible</option>
+          <option value="Van">🚐 Van / Minivan</option>
+          <option value="Deportivo">⚡ Deportivo</option>
+        </select>
+        <span style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- VIN -->
+      <div>
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Número de VIN</label>
+        <input type="text" [(ngModel)]="nuevoAuto.vin" name="vin" required placeholder="17 caracteres" style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; font-family: 'Courier New', monospace; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <span *ngIf="nuevoAuto.vin" style="display:block; margin-top:6px; font-size:0.82em; color:#1a3a6b; font-weight:700;">🔢 {{ nuevoAuto.vin }}</span>
+        <span *ngIf="!nuevoAuto.vin" style="display:block; margin-top:6px; font-size:0.82em; color:transparent;">·</span>
+      </div>
+
+      <!-- Imagen + Preview (ancho completo) -->
+      <div style="grid-column: span 3;">
+        <label style="display: block; margin-bottom: 6px; font-size: 0.82em; font-weight: 700; color: #111111; text-transform: uppercase; letter-spacing: 0.5px;">Imagen (URL)</label>
+        <input type="text" [(ngModel)]="nuevoAuto.imagen" name="imagen" required placeholder="https://..." style="width: 100%; padding: 12px 14px; border: 1px solid #ddd; background-color: #f9f9f9; box-sizing: border-box; border-radius: 8px; font-size: 0.95em; transition: border 0.2s;" onfocus="this.style.borderColor='#1a3a6b'; this.style.background='#fff'" onblur="this.style.borderColor='#ddd'; this.style.background='#f9f9f9'">
+        <div *ngIf="nuevoAuto.imagen" style="margin-top: 14px; border-radius: 12px; overflow: hidden; background: #f1f5f9; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; padding: 10px;">
+          <img [src]="nuevoAuto.imagen" alt="Preview"
+            style="max-width: 100%; max-height: 360px; width: auto; height: auto; object-fit: contain; border-radius: 8px; display: block;"
+            (error)="$any($event.target).style.display='none'"
+            (load)="$any($event.target).style.display='block'">
+        </div>
+      </div>
+
+      <!-- Botones (ancho completo) -->
+      <div style="grid-column: span 3; display: flex; gap: 15px; margin-top: 10px;">
+        <button type="button" (click)="volverAlPanel()"
+          style="flex: 1; background-color: #ffffff; color: #111111; border: 2px solid #ddd; padding: 15px; font-weight: 700; text-transform: uppercase; font-size: 0.95em; cursor: pointer; transition: 0.2s; border-radius: 8px;"
+          onmouseover="this.style.borderColor='#111111'" onmouseout="this.style.borderColor='#ddd'">
+          Cancelar
+        </button>
+        <button type="submit"
+          style="flex: 3; background-color: #1a3a6b; color: #ffffff; border: none; padding: 15px; font-weight: 800; text-transform: uppercase; font-size: 1em; cursor: pointer; transition: 0.2s; border-radius: 8px;"
+          onmouseover="this.style.backgroundColor='#122848'"
+          onmouseout="this.style.backgroundColor='#1a3a6b'">
+          ✔ Guardar Vehículo
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
 <!-- MODAL: DETALLE DE CITA (admin) -->
 <div *ngIf="citaDetalle"
   style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 4000; padding: 20px; box-sizing: border-box;"
@@ -190,7 +427,7 @@
   <div (click)="$event.stopPropagation()"
     style="background: #ffffff; border-radius: 14px; width: 100%; max-width: 460px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); overflow: hidden; position: relative;">
 
-    <div style="background: linear-gradient(135deg, #0c1e5a, #0044ff); padding: 28px 30px;">
+    <div style="background: linear-gradient(135deg, #0c1e5a, #1a3a6b); padding: 28px 30px;">
       <span style="display: block; color: rgba(255,255,255,0.7); font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px;">📋 Detalle de Cita</span>
       <h2 style="margin: 0; color: #ffffff; font-size: 1.5em; font-weight: 900;">{{ citaDetalle.cliente }}</h2>
     </div>
@@ -211,7 +448,7 @@
       <div style="background: #f8fafc; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px; border: 1px solid #e2e8f0;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="font-size: 0.82em; color: #64748b; font-weight: 700; text-transform: uppercase;">Vehículo</span>
-          <span style="font-weight: 800; color: #0044ff;">{{ citaDetalle.auto }}</span>
+          <span style="font-weight: 800; color: #1a3a6b;">{{ citaDetalle.auto }}</span>
         </div>
         <div style="border-top: 1px solid #e2e8f0;"></div>
         <div style="display: flex; justify-content: space-between; align-items: center;">

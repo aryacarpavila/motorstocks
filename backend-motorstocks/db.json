@@ -1,6 +1,53 @@
 {
-  "ventas": [],
-  "ordenes": [],
+  "ventas": [
+    {
+      "id": "VTA-2026-00001",
+      "fechaVenta": "2026-05-30T00:44:25.862Z",
+      "idOrden": "MS-2026-00001",
+      "vehiculo": {
+        "marca": "Toyota",
+        "modelo": "Corolla",
+        "ano": "2025",
+        "precio": "$20,000",
+        "color": "N/A",
+        "motor": "N/A",
+        "transmision": "N/A",
+        "combustible": "N/A",
+        "vin": "2"
+      },
+      "comprador": {
+        "id": 2,
+        "nombre": "Santiago Alejandro",
+        "apellido": "Perez Rodríguez",
+        "correo": "saperezr1.24@est.ucab.edu.ve"
+      },
+      "vendedor": "Administrador Principal"
+    }
+  ],
+  "ordenes": [
+    {
+      "idOrden": "MS-2026-00001",
+      "fechaOrden": "2026-05-30T00:39:52.610Z",
+      "estado": "Vendido",
+      "comprador": {
+        "id": 2,
+        "nombre": "Santiago Alejandro",
+        "apellido": "Perez Rodríguez",
+        "correo": "saperezr1.24@est.ucab.edu.ve"
+      },
+      "vehiculo": {
+        "marca": "Toyota",
+        "modelo": "Corolla",
+        "ano": "2025",
+        "precio": "$20,000",
+        "color": "N/A",
+        "motor": "N/A",
+        "transmision": "N/A",
+        "combustible": "N/A",
+        "vin": "2"
+      }
+    }
+  ],
   "usuarios": [
     {
       "id": 0,
@@ -23,106 +70,21 @@
   ],
   "carros": [
     {
-      "id": "1",
-      "marca": "Tesla",
-      "modelo": "Model S Plaid",
-      "precio": "$89,990",
-      "ano": "2025",
-      "kilometraje": "0 km (Nuevo)",
-      "imagen": "https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&q=80&w=600",
-      "motor": "Eléctrico (1,020 hp)",
-      "transmision": "Automática",
-      "blindaje": "Ninguno",
-      "color": "Blanco",
-      "direccion": "Electrica",
-      "combustible": "Electrico",
-      "vin": "TESLA123",
-      "reservado": false
-    },
-    {
-      "id": "2",
-      "marca": "Porsche",
-      "modelo": "911 Carrera GTS",
-      "precio": "$140,900",
-      "ano": "2024",
-      "kilometraje": "4,200 km",
-      "imagen": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600",
-      "motor": "3.0L Twin-Turbo Flat-6",
-      "transmision": "PDK 8 vel.",
-      "blindaje": "Ninguno",
-      "color": "Negro",
-      "direccion": "Hidraulica",
-      "combustible": "Gasolina",
-      "vin": "PORSCHE456",
-      "reservado": false
-    },
-    {
-      "id": "3",
-      "marca": "BMW",
-      "modelo": "M4 Competition",
-      "precio": "$78,100",
-      "ano": "2025",
-      "kilometraje": "0 km (Nuevo)",
-      "imagen": "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80&w=600",
-      "motor": "3.0L TwinPower Turbo",
-      "transmision": "Aut. M 8 vel.",
-      "blindaje": "Ninguno",
-      "color": "Blanco",
-      "direccion": "Hidraulica",
-      "combustible": "Gasolina",
-      "vin": "BMW789",
-      "reservado": false
-    },
-    {
-      "id": "4",
-      "marca": "Audi",
-      "modelo": "RS e-tron GT",
-      "precio": "$106,500",
-      "ano": "2023",
-      "kilometraje": "12,500 km",
-      "imagen": "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?auto=format&fit=crop&q=80&w=600",
-      "motor": "Eléctrico (637 hp)",
-      "transmision": "Automática",
-      "blindaje": "Ninguno",
-      "color": "Gris",
-      "direccion": "Hidraulica",
-      "combustible": "Gasolina",
-      "vin": "AUDI012",
-      "reservado": false
-    },
-    {
-      "id": "caMnrtx",
-      "marca": "Renault",
-      "modelo": "Clio",
-      "precio": "$10,000",
-      "ano": "2004",
-      "kilometraje": "",
-      "imagen": "https://http2.mlstatic.com/D_Q_NP_2X_654673-MLV111765871715_052026-T.webp",
-      "motor": "",
-      "transmision": "",
-      "blindaje": "",
-      "color": "Plateado",
-      "direccion": "",
-      "combustible": "",
-      "vin": "1",
-      "reservado": true
-    },
-    {
-      "id": "1780008144229",
       "marca": "Toyota",
-      "modelo": "Corolla",
-      "precio": "$20,000",
-      "ano": "2025",
-      "kilometraje": "",
-      "imagen": "https://http2.mlstatic.com/D_NQ_NP_994854-MLV108616444971_032026-O.webp",
-      "motor": "",
-      "transmision": "",
+      "modelo": "Rav 4",
+      "precio": "$39,000",
+      "ano": "2026",
+      "kilometraje": "0 km (Nuevo)",
+      "imagen": "https://www.topgear.com/sites/default/files/2026/04/2026_RAV4%20PHEV_%20Avantgarde%20Bronze_dynamic_001.jpg",
+      "motor": "2.5 ",
+      "transmision": "Automatica",
       "blindaje": "",
-      "color": "",
-      "direccion": "",
-      "combustible": "",
-      "vin": "2",
-      "reservado": false
+      "color": "Oro",
+      "tipo": "SUV",
+      "combustible": "Híbrido",
+      "vin": "4T1BF1FKXLU567890",
+      "reservado": false,
+      "id": "1780111486384"
     }
   ]
 }

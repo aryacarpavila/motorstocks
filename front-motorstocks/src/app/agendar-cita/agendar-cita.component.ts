@@ -118,7 +118,7 @@ export class AgendarCitaComponent implements OnInit {
   get fechaDisplay(): string {
     if (!this.citaForm.fecha) return '';
     const [y, m, d] = this.citaForm.fecha.split('-');
-    return `${m}/${d}/${y}`;
+    return `${d}/${m}/${y}`;
   }
 
   async onFechaChange() {
@@ -155,7 +155,7 @@ export class AgendarCitaComponent implements OnInit {
     }
 
     const [y, m, d] = this.citaForm.fecha.split('-');
-    const fechaFormateada = `${m}/${d}/${y}`;
+    const fechaFormateada = `${d}/${m}/${y}`;
     const [horarios] = await Promise.all([
       this.citaService.getHorariosDisponibles(this.idVehiculo, fechaFormateada),
       spinnerMinimo
@@ -195,7 +195,7 @@ export class AgendarCitaComponent implements OnInit {
     this.cdr.detectChanges();
 
     const [y, m, d] = this.citaForm.fecha.split('-');
-    const fechaFormateada = `${m}/${d}/${y}`;
+    const fechaFormateada = `${d}/${m}/${y}`;
 
     const resultado = await this.citaService.registrarCita({
       idUsuario: this.usuario.id,

@@ -11,9 +11,9 @@
         </p>
       </div>
       <button (click)="volverAlCatalogo()"
-        style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 10px 22px; font-weight: 700; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
-        onmouseover="this.style.backgroundColor='#0044ff'; this.style.color='#ffffff'"
-        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0044ff'">
+        style="background-color: transparent; color: #1a3a6b; border: 2px solid #1a3a6b; padding: 10px 22px; font-weight: 700; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#1a3a6b'; this.style.color='#ffffff'"
+        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1a3a6b'">
         ← Volver al Catálogo
       </button>
     </div>
@@ -41,9 +41,9 @@
         Aún no tienes citas agendadas</h3>
       <p style="color: #777; margin: 0 0 25px 0;">Explora nuestro catálogo y agenda una visita a tu vehículo favorito.</p>
       <button (click)="agendarOtraCita()"
-        style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px 30px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
-        onmouseover="this.style.backgroundColor='#0033cc'"
-        onmouseout="this.style.backgroundColor='#0044ff'">
+        style="background-color: #1a3a6b; color: #ffffff; border: none; padding: 14px 30px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+        onmouseover="this.style.backgroundColor='#122848'"
+        onmouseout="this.style.backgroundColor='#1a3a6b'">
         Ver Catálogo
       </button>
     </div>
@@ -95,9 +95,9 @@
           <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
             <span style="color: #bbb; font-size: 0.8em; font-weight: 600;">Cita #{{ cita.id }}</span>
             <button *ngIf="cita.estado === 'activa'" (click)="abrirReprogramar(cita)"
-              style="background-color: transparent; color: #0044ff; border: 2px solid #0044ff; padding: 8px 18px; font-weight: 700; text-transform: uppercase; font-size: 0.82em; cursor: pointer; border-radius: 6px; transition: 0.2s;"
-              onmouseover="this.style.backgroundColor='#0044ff'; this.style.color='#ffffff'"
-              onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0044ff'">
+              style="background-color: transparent; color: #1a3a6b; border: 2px solid #1a3a6b; padding: 8px 18px; font-weight: 700; text-transform: uppercase; font-size: 0.82em; cursor: pointer; border-radius: 6px; transition: 0.2s;"
+              onmouseover="this.style.backgroundColor='#1a3a6b'; this.style.color='#ffffff'"
+              onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1a3a6b'">
               🔄 Reprogramar
             </button>
           </div>
@@ -108,9 +108,9 @@
       <!-- Botón agendar otra -->
       <div style="text-align: center; margin-top: 10px;">
         <button (click)="agendarOtraCita()"
-          style="background-color: #0044ff; color: #ffffff; border: none; padding: 14px 35px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
-          onmouseover="this.style.backgroundColor='#0033cc'"
-          onmouseout="this.style.backgroundColor='#0044ff'">
+          style="background-color: #1a3a6b; color: #ffffff; border: none; padding: 14px 35px; font-weight: 800; text-transform: uppercase; font-size: 0.95em; cursor: pointer; border-radius: 8px; transition: 0.2s;"
+          onmouseover="this.style.backgroundColor='#122848'"
+          onmouseout="this.style.backgroundColor='#1a3a6b'">
           Agendar Otra Cita
         </button>
       </div>
@@ -151,7 +151,7 @@
 
       <!-- Info actual -->
       <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
-        <span style="font-size: 0.78em; color: #0044ff; font-weight: 700; text-transform: uppercase;">Vehículo</span>
+        <span style="font-size: 0.78em; color: #1a3a6b; font-weight: 700; text-transform: uppercase;">Vehículo</span>
         <p style="margin: 4px 0 0 0; font-weight: 800; color: #0c1e5a; font-size: 1em;">{{ citaAReprogramar?.auto }}</p>
         <p style="margin: 4px 0 0 0; font-size: 0.85em; color: #777;">
           Cita actual: <strong>{{ citaAReprogramar?.fecha }}</strong> a las <strong>{{ citaAReprogramar?.horario }}</strong>
@@ -169,7 +169,7 @@
             (change)="onNuevaFechaChange()"
             style="width: 100%; padding: 12px; border: 1px solid #ccc; background-color: #f9f9f9; box-sizing: border-box; border-radius: 6px; font-size: 1em;">
           <span *ngIf="nuevaFechaDisplay"
-            style="display: inline-block; margin-top: 6px; font-size: 0.85em; color: #0044ff; font-weight: 700;">
+            style="display: inline-block; margin-top: 6px; font-size: 0.85em; color: #1a3a6b; font-weight: 700;">
             📅 {{ nuevaFechaDisplay }}
           </span>
         </div>
@@ -181,7 +181,7 @@
           </label>
 
           <div *ngIf="cargandoHorarios" style="display: flex; align-items: center; gap: 10px; padding: 8px 0;">
-            <div class="spinner" style="width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #0044ff; border-radius: 50%; flex-shrink: 0;"></div>
+            <div class="spinner" style="width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: #1a3a6b; border-radius: 50%; flex-shrink: 0;"></div>
             <span style="color: #777; font-size: 0.9em;">Verificando disponibilidad...</span>
           </div>
 
@@ -198,8 +198,8 @@
           <div *ngIf="!cargandoHorarios && horariosDisponibles.length > 0"
             style="display: flex; flex-wrap: wrap; gap: 10px;">
             <label *ngFor="let hora of horariosDisponibles"
-              [style.border]="nuevoHorario === hora ? '2px solid #0044ff' : '2px solid #ddd'"
-              [style.background]="nuevoHorario === hora ? '#0044ff' : '#f9f9f9'"
+              [style.border]="nuevoHorario === hora ? '2px solid #1a3a6b' : '2px solid #ddd'"
+              [style.background]="nuevoHorario === hora ? '#1a3a6b' : '#f9f9f9'"
               [style.color]="nuevoHorario === hora ? '#ffffff' : '#111111'"
               style="padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.9em; transition: 0.2s;">
               <input type="radio" name="nuevoHorario" [value]="hora" [(ngModel)]="nuevoHorario" style="display: none;">
@@ -223,9 +223,9 @@
             Cancelar
           </button>
           <button (click)="confirmarReprogramar()" [disabled]="reprogramando"
-            style="flex: 2; background-color: #0044ff; color: #ffffff; border: none; padding: 13px; font-weight: 800; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px;"
-            onmouseover="this.style.backgroundColor='#0033cc'"
-            onmouseout="this.style.backgroundColor='#0044ff'">
+            style="flex: 2; background-color: #1a3a6b; color: #ffffff; border: none; padding: 13px; font-weight: 800; text-transform: uppercase; font-size: 0.9em; cursor: pointer; border-radius: 8px;"
+            onmouseover="this.style.backgroundColor='#122848'"
+            onmouseout="this.style.backgroundColor='#1a3a6b'">
             {{ reprogramando ? 'Guardando...' : 'Confirmar Cambio' }}
           </button>
         </div>

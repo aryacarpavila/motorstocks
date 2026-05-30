@@ -11,11 +11,19 @@ function escribirDB(data) {
     fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
 }
 
-// Cargar usuarios desde db.json al arrancar (persisten entre reinicios)
-const usuariosRegistrados = leerDB().usuarios;
+// Cargar datos desde db.json al arrancar (persisten entre reinicios)
+const _db = leerDB();
+const usuariosRegistrados = _db.usuarios || [];
+const ordenesDeCompra = _db.ordenes || [];
 
-const ordenesDeCompra = [];
+// Reconstruir autosReservados desde las órdenes cargadas
 const autosReservados = {};
+ordenesDeCompra.forEach(orden => {
+    if (orden.estado === 'Reservado') {
+        const clave = `${orden.vehiculo.marca}-${orden.vehiculo.modelo}`;
+        autosReservados[clave] = { idOrden: orden.idOrden, comprador: `${orden.comprador.nombre} ${orden.comprador.apellido}` };
+    }
+});
 const listaCitas = [];
 let citaIdCounter = 1;
 

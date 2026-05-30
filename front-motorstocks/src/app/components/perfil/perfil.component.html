@@ -1,8 +1,8 @@
 <div style="max-width: 900px; margin: 60px auto; padding: 0 20px;">
 
   <!-- Cabecera Perfil -->
-  <div style="background-color: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; display: flex; align-items: center; gap: 20px; border-left: 5px solid #0044ff;">
-    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #0c1e5a, #0044ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; color: white; font-weight: bold; flex-shrink: 0;">
+  <div style="background-color: #ffffff; border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; display: flex; align-items: center; gap: 20px; border-left: 5px solid #1a3a6b;">
+    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #0c1e5a, #1a3a6b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; color: white; font-weight: bold; flex-shrink: 0;">
       {{ usuarioLogueado?.nombre?.charAt(0) }}{{ usuarioLogueado?.apellido?.charAt(0) }}
     </div>
     <div>
@@ -26,7 +26,7 @@
     <div *ngIf="misComprobantes.length > 0" style="overflow-x: auto;">
       <table style="width: 100%; border-collapse: collapse; font-size: 0.9em;">
         <thead>
-          <tr style="background: linear-gradient(135deg, #0c1e5a, #0044ff); color: #ffffff; text-align: left; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px;">
+          <tr style="background: linear-gradient(135deg, #0c1e5a, #1a3a6b); color: #ffffff; text-align: left; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px;">
             <th style="padding: 14px 16px;">N° Comprobante</th>
             <th style="padding: 14px 16px;">Fecha de Venta</th>
             <th style="padding: 14px 16px;">Vehículo</th>
@@ -40,14 +40,14 @@
           <tr *ngFor="let comp of misComprobantes; let i = index"
             [style.background-color]="i % 2 === 0 ? '#ffffff' : '#f8fafc'"
             style="border-bottom: 1px solid #e2e8f0; transition: background 0.15s;">
-            <td style="padding: 14px 16px; font-family: 'Courier New', monospace; font-weight: 800; color: #0044ff; font-size: 0.9em;">{{ comp.id }}</td>
+            <td style="padding: 14px 16px; font-family: 'Courier New', monospace; font-weight: 800; color: #1a3a6b; font-size: 0.9em;">{{ comp.id }}</td>
             <td style="padding: 14px 16px; color: #334155; font-weight: 600;">{{ comp.fechaVenta | date:'dd/MM/yyyy' }}</td>
             <td style="padding: 14px 16px;">
               <span style="font-weight: 800; color: #0c1e5a; display: block;">{{ comp.vehiculo.marca }} {{ comp.vehiculo.modelo }}</span>
               <span style="font-size: 0.82em; color: #64748b;">Año {{ comp.vehiculo.ano }} · {{ comp.vehiculo.color }}</span>
             </td>
             <td style="padding: 14px 16px; font-family: 'Courier New', monospace; color: #555; font-size: 0.88em;">{{ comp.vehiculo.vin }}</td>
-            <td style="padding: 14px 16px; font-weight: 900; color: #0044ff; font-size: 1.05em;">{{ comp.vehiculo.precio }}</td>
+            <td style="padding: 14px 16px; font-weight: 900; color: #1a3a6b; font-size: 1.05em;">{{ comp.vehiculo.precio }}</td>
             <td style="padding: 14px 16px; color: #555;">{{ comp.vendedor }}</td>
             <td style="padding: 14px 16px; font-family: 'Courier New', monospace; font-size: 0.85em; color: #64748b;">{{ comp.idOrden }}</td>
           </tr>
@@ -64,7 +64,7 @@
     <div *ngIf="misOrdenes.length === 0" style="text-align: center; padding: 40px 20px; background: #f8fafc; border-radius: 10px; border: 1px dashed #cbd5e1;">
       <span style="font-size: 3em; display: block; margin-bottom: 15px;">🚘</span>
       <p style="color: #64748b; font-size: 1.1em; font-weight: 600; margin: 0 0 15px 0;">Aún no tienes vehículos registrados en tu historial.</p>
-      <button (click)="irACatalogo.emit()" style="background-color: #0044ff; color: #ffffff; border: none; padding: 10px 24px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: 0.2s;">Ir al Catálogo</button>
+      <button (click)="irACatalogo.emit()" style="background-color: #1a3a6b; color: #ffffff; border: none; padding: 10px 24px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: 0.2s;">Ir al Catálogo</button>
     </div>
 
     <!-- Lista de órdenes -->
@@ -92,7 +92,7 @@
           </div>
 
           <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-            <span style="font-size: 1.6em; font-weight: 900; color: #0044ff;">{{ orden.vehiculo.precio }}</span>
+            <span style="font-size: 1.6em; font-weight: 900; color: #1a3a6b;">{{ orden.vehiculo.precio }}</span>
             <span style="background-color: #dcfce7; color: #166534; padding: 4px 12px; font-size: 0.85em; font-weight: 800; border-radius: 20px; text-transform: uppercase; border: 1px solid #bbf7d0;">
               {{ orden.estado }}
             </span>

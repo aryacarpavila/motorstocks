@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
 import { AuthService } from './services/auth.service';
-import { CarrosService } from './services/carros.service';
 import { CatalogoComponent } from './components/catalogo/catalogo.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegistroComponent } from './components/registro/registro.component';
@@ -33,13 +32,11 @@ export class AppComponent implements OnInit {
   usuarioLogueado: any = null;
   menuPerfilAbierto: boolean = false;
   _nombreLogout = '';
-  listaCarrosAdmin: any[] = [];
 
   constructor(
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private authService: AuthService,
-    private carrosService: CarrosService
+    private authService: AuthService
   ) {
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) {
@@ -66,16 +63,8 @@ export class AppComponent implements OnInit {
       this.usuarioLogueado = JSON.parse(savedUser);
       if (this.usuarioLogueado.rol === 'admin') {
         this.cambiarSeccion('admin');
-        this.cargarCarrosAdmin();
       }
     }
-  }
-
-  cargarCarrosAdmin() {
-    this.carrosService.getCarros().subscribe(data => {
-      this.listaCarrosAdmin = data;
-      this.cdr.detectChanges();
-    });
   }
 
   cambiarSeccion(seccion: 'catalogo' | 'registro' | 'login' | 'admin' | 'perfil') {
@@ -85,8 +74,8 @@ export class AppComponent implements OnInit {
     } else {
       this.seccionActiva = seccion;
       this.menuPerfilAbierto = false;
-      if (seccion === 'admin') {
-        this.cargarCarrosAdmin();
+      if (seccion === 'catalogo') {
+        setTimeout(() => this.catalogoRef?.cargarAutos(), 0);
       }
     }
     this.cdr.detectChanges();
@@ -102,6 +91,7 @@ export class AppComponent implements OnInit {
       this.cambiarSeccion('admin');
     } else {
       this.seccionActiva = 'catalogo';
+      setTimeout(() => this.catalogoRef?.cargarAutos(), 0);
     }
     this.cdr.detectChanges();
   }
@@ -132,12 +122,5 @@ export class AppComponent implements OnInit {
 
   mostrarProximamente() {
     alert('Próximamente se hará, confía');
-  }
-
-  onSolicitarRegistroAuto() {
-    // Abrir el modal de registro de auto en el componente catalogo
-    if (this.catalogoRef) {
-      this.catalogoRef.abrirModalRegistroAuto();
-    }
   }
 }

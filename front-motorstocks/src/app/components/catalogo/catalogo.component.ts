@@ -26,6 +26,8 @@ export class CatalogoComponent implements OnInit {
   filtroPrecioMin: string = '';
   filtroPrecioMax: string = '';
   soloDisponibles: boolean = false;
+  filtroTipo: string = '';
+  ordenarPor: string = 'precio_asc';
 
   get marcasDisponibles(): string[] {
     const marcas = this.listaCarros.map(c => c.marca).filter(m => m);
@@ -33,12 +35,13 @@ export class CatalogoComponent implements OnInit {
   }
 
   get carrosFiltrados(): any[] {
-    return this.listaCarros.filter(carro => {
+    const filtrados = this.listaCarros.filter(carro => {
       if (this.busqueda) {
         const texto = this.busqueda.toLowerCase();
         if (!carro.marca?.toLowerCase().includes(texto) && !carro.modelo?.toLowerCase().includes(texto)) return false;
       }
       if (this.filtroMarca && carro.marca !== this.filtroMarca) return false;
+      if (this.filtroTipo && carro.tipo !== this.filtroTipo) return false;
       if (this.filtroCombustible && !carro.combustible?.toLowerCase().includes(this.filtroCombustible.toLowerCase())) return false;
       if (this.soloDisponibles && carro.reservado) return false;
       const precio = parseFloat(carro.precio?.replace(/[^0-9.]+/g, '') || '0');
@@ -46,19 +49,40 @@ export class CatalogoComponent implements OnInit {
       if (this.filtroPrecioMax && precio > parseFloat(this.filtroPrecioMax)) return false;
       return true;
     });
+
+    if (!this.ordenarPor) return filtrados;
+
+    const parsePrecio = (c: any) => parseFloat(c.precio?.replace(/[^0-9.]+/g, '') || '0');
+    const parseKm    = (c: any) => parseInt(c.kilometraje?.replace(/[^0-9]/g, '') || '0', 10);
+
+    return [...filtrados].sort((a, b) => {
+      switch (this.ordenarPor) {
+        case 'precio_asc':  return parsePrecio(a) - parsePrecio(b);
+        case 'precio_asc': return parsePrecio(b) - parsePrecio(a);
+        case 'km_asc':      return parseKm(a) - parseKm(b);
+        case 'km_desc':     return parseKm(b) - parseKm(a);
+        default: return 0;
+      }
+    });
+  }
+
+  get hayFiltrosSidebar(): boolean {
+    return !!(this.busqueda || this.filtroMarca || this.filtroTipo || this.filtroCombustible || this.filtroPrecioMin || this.filtroPrecioMax || this.soloDisponibles);
   }
 
   get hayFiltrosActivos(): boolean {
-    return !!(this.busqueda || this.filtroMarca || this.filtroCombustible || this.filtroPrecioMin || this.filtroPrecioMax || this.soloDisponibles);
+    return this.hayFiltrosSidebar;
   }
 
   limpiarFiltros() {
     this.busqueda = '';
     this.filtroMarca = '';
+    this.filtroTipo = '';
     this.filtroCombustible = '';
     this.filtroPrecioMin = '';
     this.filtroPrecioMax = '';
     this.soloDisponibles = false;
+    this.ordenarPor = 'precio_asc';
     this.cdr.detectChanges();
   }
 
@@ -70,24 +94,6 @@ export class CatalogoComponent implements OnInit {
   procesandoOrden: boolean = false;
   errorOrden: string | null = null;
   ordenConfirmada: any = null;
-
-  // Modal registro de auto (admin)
-  mostrarModalRegistroAuto: boolean = false;
-  nuevoAuto = {
-    marca: '',
-    modelo: '',
-    precio: '',
-    ano: '',
-    kilometraje: '',
-    imagen: '',
-    motor: '',
-    transmision: '',
-    blindaje: '',
-    color: '',
-    direccion: '',
-    combustible: '',
-    vin: ''
-  };
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -114,14 +120,6 @@ export class CatalogoComponent implements OnInit {
 
   cerrarModal() {
     this.carroModal = null;
-  }
-
-  abrirModalRegistroAuto() {
-    this.mostrarModalRegistroAuto = true;
-  }
-
-  cerrarModalRegistroAuto() {
-    this.mostrarModalRegistroAuto = false;
   }
 
   mostrarProximamente() {
@@ -201,55 +199,4 @@ export class CatalogoComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  formatearPrecioInput(valor: string) {
-    let numerico = valor.replace(/\D/g, '');
-    if (numerico === '') {
-      this.nuevoAuto.precio = '';
-      return;
-    }
-    this.nuevoAuto.precio = '$' + parseInt(numerico, 10).toLocaleString('en-US');
-  }
-
-  agregarAuto(evento: Event) {
-    evento.preventDefault();
-
-    const auto = this.nuevoAuto;
-    if (!auto.marca || !auto.modelo || !auto.precio || !auto.ano || !auto.imagen || !auto.vin) {
-      alert('Por favor, completa los campos obligatorios: Marca, Modelo, Precio, Año, Número de VIN e Imagen.');
-      return;
-    }
-
-    const precioNumerico = parseFloat(auto.precio.replace(/[^0-9.-]+/g, ''));
-    if (isNaN(precioNumerico) || precioNumerico <= 0) {
-      alert('Por favor, ingresa un precio válido y mayor a 0.');
-      return;
-    }
-
-    const anoNumerico = parseInt(auto.ano, 10);
-    const anoMaximo = new Date().getFullYear() + 1;
-    if (isNaN(anoNumerico) || anoNumerico < 1900 || anoNumerico > anoMaximo) {
-      alert(`Por favor, ingresa un año válido entre 1900 y ${anoMaximo}.`);
-      return;
-    }
-
-    this.carrosService.registrarCarro({ ...this.nuevoAuto, reservado: false }).subscribe(
-      () => {
-        this.cargarAutos();
-        this.nuevoAuto = {
-          marca: '', modelo: '', precio: '', ano: '', kilometraje: '', imagen: '',
-          motor: '', transmision: '', blindaje: '', color: '', direccion: '', combustible: '', vin: ''
-        };
-        alert('¡Auto agregado exitosamente a la base de datos!');
-        this.mostrarModalRegistroAuto = false;
-        this.cdr.detectChanges();
-      },
-      (error: any) => {
-        if (error.error && error.error.mensaje) {
-          alert(error.error.mensaje);
-        } else {
-          alert('Error al conectar con la base de datos JSON.');
-        }
-      }
-    );
-  }
 }
