@@ -1,5 +1,5 @@
-const { ordenesDeCompra, autosReservados, generarIdOrden, carrosPath, ordenesPath, leerJSON, guardarJSON } = require('../models/db.model');
 const Transaccion = require('../clases/Transaccion');
+const Carro       = require('../clases/Carro');
 
 function crearOrden(req, res) {
     const { usuarioId, usuarioNombre, usuarioApellido, usuarioCorreo, auto } = req.body;
@@ -12,25 +12,13 @@ function crearOrden(req, res) {
     }
 
     const claveAuto = `${auto.marca}-${auto.modelo}`;
-    if (autosReservados[claveAuto]) {
-        return res.status(409).json({
-            ok: false,
-            mensaje: `El vehículo ${auto.marca} ${auto.modelo} ya se encuentra reservado. Por favor selecciona otro vehículo.`
-        });
+    if (Transaccion.reservados[claveAuto]) {
+        return res.status(409).json({ ok: false, mensaje: `El vehículo ${auto.marca} ${auto.modelo} ya se encuentra reservado.` });
     }
 
-    const idOrden   = generarIdOrden();
-    const fechaOrden = new Date();
-
-    const nuevaOrden = new Transaccion({
-        idOrden,
-        fechaOrden,
-        comprador: {
-            id:       usuarioId,
-            nombre:   usuarioNombre,
-            apellido: usuarioApellido,
-            correo:   usuarioCorreo
-        },
+    const nuevaTransaccion = new Transaccion({
+        idOrden:   Transaccion.generarId(),
+        comprador: { id: usuarioId, nombre: usuarioNombre, apellido: usuarioApellido, correo: usuarioCorreo },
         vehiculo: {
             idVehiculo:  auto.id          || null,
             marca:       auto.marca,
@@ -45,44 +33,32 @@ function crearOrden(req, res) {
         }
     });
 
-    ordenesDeCompra.push(nuevaOrden);
-    autosReservados[claveAuto] = { idOrden, comprador: `${usuarioNombre} ${usuarioApellido}` };
+    Transaccion.lista.push(nuevaTransaccion);
+    Transaccion.reservados[claveAuto] = { idOrden: nuevaTransaccion.idOrden, comprador: `${usuarioNombre} ${usuarioApellido}` };
+    Transaccion.guardar();
 
-    try {
-        const ordenes = leerJSON(ordenesPath);
-        ordenes.push(nuevaOrden);
-        guardarJSON(ordenesPath, ordenes);
+    const carros = Carro.leer();
+    const idx    = carros.findIndex(c => `${c.marca}-${c.modelo}` === claveAuto);
+    if (idx !== -1) carros[idx].reservado = true;
+    Carro.guardar(carros);
 
-        const carros = leerJSON(carrosPath);
-        const idx = carros.findIndex(c => `${c.marca}-${c.modelo}` === claveAuto);
-        if (idx !== -1) carros[idx].reservado = true;
-        guardarJSON(carrosPath, carros);
-    } catch (e) {
-        console.error('Error actualizando archivos de datos:', e);
-    }
-
-    console.log(`🛒 [ORDEN #${idOrden}]: "${auto.marca} ${auto.modelo}" reservado por ${usuarioNombre} ${usuarioApellido}`);
-
-    return res.status(201).json({ ok: true, mensaje: '¡Orden de compra generada con éxito!', orden: nuevaOrden });
+    console.log(`🛒 [ORDEN #${nuevaTransaccion.idOrden}]: "${auto.marca} ${auto.modelo}" reservado por ${usuarioNombre} ${usuarioApellido}`);
+    return res.status(201).json({ ok: true, mensaje: '¡Orden de compra generada con éxito!', orden: nuevaTransaccion });
 }
 
 function getOrdenes(req, res) {
-    return res.status(200).json({ ok: true, ordenes: ordenesDeCompra });
+    return res.status(200).json({ ok: true, ordenes: Transaccion.lista });
 }
 
 function getOrdenesPorCliente(req, res) {
     const usuarioId = parseInt(req.params.usuarioId);
-    if (isNaN(usuarioId)) {
-        return res.status(400).json({ ok: false, mensaje: 'ID de usuario inválido.' });
-    }
-    const misOrdenes = ordenesDeCompra.filter(o => o.comprador.id === usuarioId);
-    return res.status(200).json({ ok: true, ordenes: misOrdenes });
+    if (isNaN(usuarioId)) return res.status(400).json({ ok: false, mensaje: 'ID de usuario inválido.' });
+    return res.status(200).json({ ok: true, ordenes: Transaccion.lista.filter(o => o.comprador.id === usuarioId) });
 }
 
 function getEstadoAuto(req, res) {
-    const { marca, modelo } = req.query;
-    const clave   = `${marca}-${modelo}`;
-    const reserva = autosReservados[clave];
+    const clave   = `${req.query.marca}-${req.query.modelo}`;
+    const reserva = Transaccion.reservados[clave];
     return res.status(200).json({ ok: true, reservado: !!reserva, detalle: reserva || null });
 }
 

@@ -1,10 +1,7 @@
-const { usuariosRegistrados } = require('../models/db.model');
+const Cuenta = require('../clases/Cuenta');
 
 function getUsuarios(req, res) {
-    const usuariosSeguros = usuariosRegistrados.map(u => {
-        const { password, ...resto } = u;
-        return resto;
-    });
+    const usuariosSeguros = Cuenta.lista.map(({ password, ...resto }) => resto);
     return res.status(200).json({ ok: true, usuarios: usuariosSeguros });
 }
 
