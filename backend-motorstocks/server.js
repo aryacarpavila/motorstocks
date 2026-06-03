@@ -14,5 +14,5 @@ app.use('/api', require('./routes/citas.routes'));
 app.use('/api', require('./routes/ventas.routes'));
 
 app.listen(PORT, () => {
-    console.log(`\n🚀 MotorStocks Backend en http://localhost:${PORT}`);
+    console.log(`\n🚀 MotorStocks Backend corriendo en http://localhost:${PORT}`);
 });
