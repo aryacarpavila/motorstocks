@@ -1,4 +1,5 @@
 const { carrosPath, ordenesPath, leerJSON, guardarJSON } = require('../models/db.model');
+const Carro = require('../clases/Carro');
 
 function getCarros(req, res) {
     try {
@@ -72,10 +73,10 @@ function registrarCarro(req, res) {
         nuevoCarro.transmision = nuevoCarro.transmision?.trim() ?? nuevoCarro.transmision;
         nuevoCarro.tipo        = nuevoCarro.tipo?.trim() ?? nuevoCarro.tipo;
 
-        if (!nuevoCarro.id) nuevoCarro.id = Date.now().toString();
-        carros.push(nuevoCarro);
+        const carroProcesado = new Carro({ ...nuevoCarro });
+        carros.push(carroProcesado);
         guardarJSON(carrosPath, carros);
-        return res.status(201).json(nuevoCarro);
+        return res.status(201).json(carroProcesado);
     } catch {
         return res.status(500).json({ ok: false, mensaje: 'Error al guardar en la base de datos.' });
     }

@@ -1,4 +1,5 @@
 const { ordenesDeCompra, carrosPath, ordenesPath, ventasPath, leerJSON, guardarJSON } = require('../models/db.model');
+const Transaccion = require('../clases/Transaccion');
 
 function formalizarVenta(req, res) {
     const { idOrden, vendedor } = req.body;
@@ -34,14 +35,18 @@ function formalizarVenta(req, res) {
         carros[carroIdx].reservado = false;
     }
 
-    // Generar comprobante de venta
+    // Formalizar la transacción usando la clase Transaccion
+    const transaccion = new Transaccion({ ...orden });
+    const idVenta = `VTA-${new Date().getFullYear()}-${String(ventas.length + 1).padStart(5, '0')}`;
+    transaccion.formalizar({ idVenta, vendedor });
+
     const venta = {
-        id:         `VTA-${new Date().getFullYear()}-${String(ventas.length + 1).padStart(5, '0')}`,
-        fechaVenta: new Date().toISOString(),
+        id:         idVenta,
+        fechaVenta: transaccion.fechaVenta,
         idOrden,
         vehiculo:   { ...orden.vehiculo },
         comprador:  { ...orden.comprador },
-        vendedor:   vendedor || 'Administrador Principal'
+        vendedor:   transaccion.vendedor
     };
     ventas.push(venta);
 

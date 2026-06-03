@@ -1,4 +1,5 @@
 const { usuariosRegistrados, guardarUsuarios } = require('../models/db.model');
+const Cuenta = require('../clases/Cuenta');
 
 function registro(req, res) {
     const { nombre, apellido, correo, fechaNacimiento, password, aceptaTerminos } = req.body;
@@ -49,16 +50,15 @@ function registro(req, res) {
     }
 
     // SINO HAY ERRORES, AQUÍ SE CREA EL USUARIO REAL
-    const nuevoCliente = {
+    const nuevoCliente = new Cuenta({
         id: usuariosRegistrados.length + 1,
         nombre,
         apellido,
-        correo: correo.toLowerCase(),
+        correo,
         password,
         fechaNacimiento,
-        fechaRegistro: new Date(),
         rol: 'cliente'
-    };
+    });
 
     usuariosRegistrados.push(nuevoCliente);
     guardarUsuarios();

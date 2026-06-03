@@ -1,4 +1,5 @@
 const { listaCitas, HORARIOS, carrosPath, ordenesPath, siguienteCitaId, guardarCitas, leerJSON } = require('../models/db.model');
+const Cita = require('../clases/Cita');
 
 function getCitas(req, res) {
     return res.status(200).json({ ok: true, citas: listaCitas });
@@ -94,19 +95,17 @@ function crearCita(req, res) {
         return res.status(400).json({ ok: false, mensaje: 'El horario seleccionado ya no está disponible. Por favor elige otro.' });
     }
 
-    const nuevaCita = {
-        id:            siguienteCitaId(),
-        idUsuario:     String(idUsuario),
+    const nuevaCita = new Cita({
+        id:         siguienteCitaId(),
+        idUsuario,
         idVehiculo,
         tipoCita,
         fecha,
         horario,
-        estado:        'activa',
-        cliente:       cliente || '',
-        auto:          auto || vehiculo.nombre,
-        imagen:        imagen || '',
-        fechaCreacion: new Date().toISOString()
-    };
+        cliente,
+        auto:       auto || vehiculo.nombre,
+        imagen
+    });
 
     listaCitas.push(nuevaCita);
     guardarCitas();

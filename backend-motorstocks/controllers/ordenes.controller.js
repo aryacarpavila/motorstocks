@@ -1,4 +1,5 @@
 const { ordenesDeCompra, autosReservados, generarIdOrden, carrosPath, ordenesPath, leerJSON, guardarJSON } = require('../models/db.model');
+const Transaccion = require('../clases/Transaccion');
 
 function crearOrden(req, res) {
     const { usuarioId, usuarioNombre, usuarioApellido, usuarioCorreo, auto } = req.body;
@@ -21,10 +22,9 @@ function crearOrden(req, res) {
     const idOrden   = generarIdOrden();
     const fechaOrden = new Date();
 
-    const nuevaOrden = {
+    const nuevaOrden = new Transaccion({
         idOrden,
         fechaOrden,
-        estado: 'Reservado',
         comprador: {
             id:       usuarioId,
             nombre:   usuarioNombre,
@@ -32,7 +32,7 @@ function crearOrden(req, res) {
             correo:   usuarioCorreo
         },
         vehiculo: {
-            idVehiculo:  auto.id || null,
+            idVehiculo:  auto.id          || null,
             marca:       auto.marca,
             modelo:      auto.modelo,
             ano:         auto.ano,
@@ -43,7 +43,7 @@ function crearOrden(req, res) {
             combustible: auto.combustible || 'N/A',
             vin:         auto.vin         || 'N/A'
         }
-    };
+    });
 
     ordenesDeCompra.push(nuevaOrden);
     autosReservados[claveAuto] = { idOrden, comprador: `${usuarioNombre} ${usuarioApellido}` };
